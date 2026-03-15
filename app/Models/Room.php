@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Room extends Model
+{
+    /** @use HasFactory<\Database\Factories\RoomFactory> */
+    use HasFactory;
+
+    protected $fillable = ['name', 'location', 'target_temperature', 'min_temperature', 'max_temperature'];
+
+    public function compressors()
+    {
+        return $this->hasMany(Compressor::class);
+    }
+
+    public function evaporator()
+    {
+        return $this->hasOne(Evaporator::class);
+    }
+}
