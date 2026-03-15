@@ -22,12 +22,14 @@ class TriggerTemperatureAlert implements ShouldQueue
      */
     public function handle(TemperatureThresholdExceeded $event): void
     {
-        Alert::create([
+        $alert = Alert::create([
             'room_id' => $event->reading->room_id,
             'temperature' => $event->reading->temperature,
             'threshold' => $event->threshold,
             'severity' => $event->severity,
             'status' => 'open'
         ]);
+
+        \App\Jobs\QueueNotificationJob::dispatch($alert);
     }
 }
