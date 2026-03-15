@@ -10,10 +10,15 @@ class Compressor extends Model
     /** @use HasFactory<\Database\Factories\CompressorFactory> */
     use HasFactory;
 
-    protected $fillable = ['room_id', 'name', 'status'];
+    protected $fillable = ['room_id', 'refrigeration_system_id', 'name', 'status'];
 
     public function room()
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function refrigerationSystem()
+    {
+        return $this->belongsTo(RefrigerationSystem::class);
     }
 }

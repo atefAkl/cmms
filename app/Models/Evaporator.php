@@ -11,10 +11,15 @@ class Evaporator extends Model
     /** @use HasFactory<\Database\Factories\EvaporatorFactory> */
     use HasFactory;
 
-    protected $fillable = ['room_id', 'fan_count', 'heater_count', 'status'];
+    protected $fillable = ['room_id', 'refrigeration_system_id', 'fan_count', 'heater_count', 'status'];
 
     public function room()
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function refrigerationSystem()
+    {
+        return $this->belongsTo(RefrigerationSystem::class);
     }
 }

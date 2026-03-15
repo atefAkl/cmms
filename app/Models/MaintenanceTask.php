@@ -18,9 +18,12 @@ class MaintenanceTask extends Model
     const STATUS_APPROVED = 'approved';
     const STATUS_CLOSED = 'closed';
 
+    const TYPE_PREVENTIVE = 'preventive';
+    const TYPE_CORRECTIVE = 'corrective';
+
     protected $fillable = [
-        'room_id', 'compressor_id', 'issue_description', 'root_cause', 'repair_action',
-        'technician_id', 'status', 'cost', 'started_at', 'completed_at'
+        'room_id', 'refrigeration_system_id', 'asset_id', 'issue_description', 'root_cause', 'repair_action',
+        'technician_id', 'status', 'maintenance_type', 'cost', 'started_at', 'completed_at'
     ];
 
     protected $casts = [
@@ -28,7 +31,8 @@ class MaintenanceTask extends Model
         'completed_at' => 'datetime',
     ];
     public function room() { return $this->belongsTo(\App\Models\Room::class); }
-    public function compressor() { return $this->belongsTo(\App\Models\Compressor::class); }
+    public function asset() { return $this->belongsTo(\App\Models\Asset::class); }
+    public function refrigerationSystem() { return $this->belongsTo(\App\Models\RefrigerationSystem::class); }
     public function technician() { return $this->belongsTo(\App\Models\User::class, 'technician_id'); }
     public function parts() { return $this->hasMany(MaintenancePart::class); }
 }

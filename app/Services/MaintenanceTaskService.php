@@ -9,6 +9,23 @@ use Illuminate\Support\Carbon;
 class MaintenanceTaskService
 {
     /**
+     * Create a new maintenance task.
+     */
+    public function createTask(array $data): MaintenanceTask
+    {
+        return MaintenanceTask::create([
+            'room_id' => $data['room_id'],
+            'refrigeration_system_id' => $data['refrigeration_system_id'] ?? null,
+            'compressor_id' => $data['compressor_id'] ?? null,
+            'evaporator_id' => $data['evaporator_id'] ?? null,
+            'issue_description' => $data['issue_description'],
+            'technician_id' => $data['technician_id'] ?? null,
+            'maintenance_type' => $data['maintenance_type'] ?? MaintenanceTask::TYPE_CORRECTIVE,
+            'status' => MaintenanceTask::STATUS_OPEN,
+        ]);
+    }
+
+    /**
      * Update the status of a maintenance task.
      * Transitions must follow logical order.
      */

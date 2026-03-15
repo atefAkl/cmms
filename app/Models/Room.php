@@ -12,13 +12,8 @@ class Room extends Model
 
     protected $fillable = ['name', 'location', 'target_temperature', 'min_temperature', 'max_temperature'];
 
-    public function compressors()
+    public function refrigerationSystems()
     {
-        return $this->hasMany(Compressor::class);
-    }
-
-    public function evaporator()
-    {
-        return $this->hasOne(Evaporator::class);
+        return $this->hasMany(RefrigerationSystem::class);
     }
 }

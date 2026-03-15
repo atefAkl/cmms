@@ -22,11 +22,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // UI Navigation Routes
+    // Inventory & Procurement
+    Route::resource('item-categories', \App\Http\Controllers\Web\ItemCategoryWebController::class);
+    Route::resource('warehouses', \App\Http\Controllers\Web\WarehouseWebController::class);
+    Route::resource('inventory-items', \App\Http\Controllers\Web\InventoryItemWebController::class);
+    Route::resource('procurement', \App\Http\Controllers\Web\ProcurementWebController::class);
+    Route::post('procurement/{procurement}/add-item', [\App\Http\Controllers\Web\ProcurementWebController::class, 'addItem'])->name('procurement.addItem');
+    Route::post('procurement/{procurement}/approve', [\App\Http\Controllers\Web\ProcurementWebController::class, 'approve'])->name('procurement.approve');
+    Route::post('procurement/{procurement}/reject', [\App\Http\Controllers\Web\ProcurementWebController::class, 'reject'])->name('procurement.reject');
+    Route::post('procurement/{procurement}/receive', [\App\Http\Controllers\Web\ProcurementWebController::class, 'markAsReceived'])->name('procurement.receive');
+    
+    // Redirect legacy inventory to new generic items
+    Route::get('/inventory', function() { return redirect()->route('inventory-items.index'); });
+    
     Route::resource('rooms', \App\Http\Controllers\Web\RoomWebController::class);
     Route::resource('maintenance', \App\Http\Controllers\Web\MaintenanceWebController::class);
     Route::resource('pm-schedules', \App\Http\Controllers\Web\PmScheduleWebController::class);
-    Route::resource('inventory', \App\Http\Controllers\Web\InventoryWebController::class);
     Route::resource('alerts', \App\Http\Controllers\Web\AlertWebController::class);
+    Route::resource('refrigeration-systems', \App\Http\Controllers\RefrigerationSystemController::class);
+    Route::resource('assets', \App\Http\Controllers\AssetController::class);
 });
 
 require __DIR__.'/auth.php';

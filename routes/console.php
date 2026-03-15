@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::job(new \App\Jobs\GeneratePreventiveMaintenanceTasks)->daily();
+Schedule::command('analytics:check')->everyThirtyMinutes();

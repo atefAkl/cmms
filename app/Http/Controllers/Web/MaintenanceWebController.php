@@ -14,7 +14,14 @@ class MaintenanceWebController extends Controller
 {
     public function index()
     {
-        $tasks = MaintenanceTask::with(['room', 'compressor', 'technician'])->latest()->paginate(10);
+        $query = MaintenanceTask::with(['room', 'compressor', 'technician'])->latest();
+
+        // If not a Manager, filter by technician_id
+        if (!auth()->user()->hasRole('Manager')) {
+            $query->where('technician_id', auth()->user()->id);
+        }
+
+        $tasks = $query->paginate(10);
         return view('maintenance.index', compact('tasks'));
     }
 

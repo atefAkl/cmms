@@ -7,6 +7,10 @@ use App\Models\Alert;
 use App\Models\MaintenanceTask;
 use App\Models\TemperatureReading;
 use App\Models\Inspection;
+use App\Models\PmTask;
+use App\Models\RefrigerationSystem;
+use App\Models\InventoryItem;
+use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Carbon;
 
@@ -20,12 +24,28 @@ class DashboardService
     {
         return Cache::remember('manager_dashboard_stats', 300, function () {
             return [
-                'rooms' => Room::with('compressors', 'evaporator')->get(),
+                'rooms' => Room::with('refrigerationSystems.assets')->get(),
                 'active_alerts' => Alert::where('status', 'open')->count(),
                 'equipment_health' => $this->calculateEquipmentHealth(),
-                'maintenance_backlog' => MaintenanceTask::whereIn('status', ['open', 'diagnosed', 'assigned', 'in_progress'])->count(),
+                'upcoming_pm' => PmTask::where('status', PmTask::STATUS_PENDING)
+                                       ->where('scheduled_date', '>', Carbon::today())
+                                       ->orderBy('scheduled_date')
+                                       ->take(5)
+                                       ->with('schedule')
+                                       ->get(),
+                'maintenance_backlog' => MaintenanceTask::whereIn('status', [
+                                            MaintenanceTask::STATUS_OPEN, 
+                                            MaintenanceTask::STATUS_DIAGNOSED, 
+                                            MaintenanceTask::STATUS_ASSIGNED, 
+                                            MaintenanceTask::STATUS_IN_PROGRESS
+                                        ])->count(),
                 'monthly_maintenance_cost' => MaintenanceTask::whereMonth('created_at', Carbon::now()->month)->sum('cost'),
                 
+                // Inventory & Procurement Stats
+                'low_stock_count' => InventoryItem::whereColumn('stock', '<=', 'min_stock_level')->count(),
+                'pending_purchases_count' => PurchaseOrder::where('status', 'pending')->count(),
+                'total_inventory_value' => InventoryItem::selectRaw('SUM(stock * cost) as total')->value('total') ?? 0,
+
                 // For Charts
                 'temperature_trends' => $this->getTemperatureTrends(),
                 'maintenance_costs_chart' => $this->getMaintenanceCosts(),
@@ -41,12 +61,16 @@ class DashboardService
     {
         return Cache::remember("maintenance_dashboard_stats_{$technicianId}", 300, function () use ($technicianId) {
             return [
+                'today_pm' => PmTask::whereDate('scheduled_date', Carbon::today())
+                                    ->where('status', PmTask::STATUS_PENDING)
+                                    ->with('schedule.equipment')
+                                    ->get(),
                 'today_inspections' => Inspection::whereDate('scheduled_date', Carbon::today())
                                                  ->where('technician_id', $technicianId)
                                                  ->get(),
                 'assigned_tasks' => MaintenanceTask::where('technician_id', $technicianId)
                                                    ->whereIn('status', [MaintenanceTask::STATUS_ASSIGNED, MaintenanceTask::STATUS_IN_PROGRESS])
-                                                   ->with(['room', 'compressor'])
+                                                   ->with(['room', 'asset', 'refrigerationSystem'])
                                                    ->get(),
                 'open_alerts' => Alert::where('status', 'open')->latest()->take(10)->get(),
             ];
@@ -55,12 +79,17 @@ class DashboardService
 
     private function calculateEquipmentHealth()
     {
-        // Placeholder for health calculation logic
-        $total = \App\Models\Compressor::count() + \App\Models\Evaporator::count();
-        $faulty = \App\Models\Compressor::where('status', 'faulty')->count() + \App\Models\Evaporator::where('status', 'faulty')->count();
+        $totalSystems = RefrigerationSystem::count();
+        $faultySystems = RefrigerationSystem::where('status', 'inactive')->count();
+        
+        $totalAssets = \App\Models\Asset::count();
+        $faultyAssets = \App\Models\Asset::whereIn('status', ['faulty', 'inactive'])->count();
 
-        if ($total == 0) return 100;
-        return round((($total - $faulty) / $total) * 100);
+        $totalCount = $totalSystems + $totalAssets;
+        $faultyCount = $faultySystems + $faultyAssets;
+
+        if ($totalCount == 0) return 100;
+        return round((($totalCount - $faultyCount) / $totalCount) * 100);
     }
 
     private function getTemperatureTrends()

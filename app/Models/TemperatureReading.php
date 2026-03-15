@@ -11,7 +11,7 @@ class TemperatureReading extends Model
     /** @use HasFactory<\Database\Factories\TemperatureReadingFactory> */
     use HasFactory;
 
-    protected $fillable = ['room_id', 'temperature', 'recorded_by', 'recorded_at'];
+    protected $fillable = ['room_id', 'refrigeration_system_id', 'temperature', 'recorded_by', 'recorded_at'];
 
     public function room()
     {
@@ -21,5 +21,10 @@ class TemperatureReading extends Model
     public function recorder()
     {
         return $this->belongsTo(\App\Models\User::class, 'recorded_by');
+    }
+
+    public function refrigerationSystem()
+    {
+        return $this->belongsTo(RefrigerationSystem::class);
     }
 }

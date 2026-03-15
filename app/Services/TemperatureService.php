@@ -8,15 +8,18 @@ use App\Events\TemperatureThresholdExceeded;
 
 class TemperatureService
 {
-    public function logTemperature(Room $room, $temperature, $userId)
+    public function logTemperature(Room $room, $temperature, $userId, $refSystemId = null)
     {
         $reading = TemperatureReading::create([
             'room_id' => $room->id,
+            'refrigeration_system_id' => $refSystemId,
             'temperature' => $temperature,
             'recorded_by' => $userId,
         ]);
 
         $this->checkThresholds($room, $reading);
+
+        \App\Jobs\PredictiveMaintenanceJob::dispatch();
 
         return $reading;
     }
