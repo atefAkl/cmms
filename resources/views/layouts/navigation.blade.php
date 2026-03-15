@@ -10,11 +10,16 @@
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                <!-- Breadcrumbs -->
+                <div class="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex items-center text-sm text-gray-500">
+                    <a href="{{ route('dashboard') }}" class="hover:text-gray-700">Home</a>
+                    
+                    @if(!request()->routeIs('dashboard'))
+                        <span class="mx-2">/</span>
+                        <span class="text-gray-800 font-medium capitalize">
+                            {{ str_replace(['.index', '-', '.'], ['', ' ', ' > '], request()->route()->getName()) }}
+                        </span>
+                    @endif
                 </div>
             </div>
 
@@ -66,10 +71,8 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+        <div class="pt-2 pb-3 space-y-1 px-4">
+            <span class="text-gray-500 text-sm">Navigation moved to sidebar.</span>
         </div>
 
         <!-- Responsive Settings Options -->

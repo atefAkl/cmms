@@ -12,7 +12,7 @@ class UpdateRoomRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,11 @@ class UpdateRoomRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'target_temperature' => 'required|numeric',
+            'min_temperature' => 'required|numeric|lte:max_temperature',
+            'max_temperature' => 'required|numeric|gte:min_temperature',
         ];
     }
 }
