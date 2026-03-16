@@ -1,4 +1,6 @@
 <x-app-layout>
+    <!--  -->
+
     <div x-data="{ 
         open: false, 
         editMode: false, 
@@ -21,8 +23,7 @@
             }
             this.open = true;
         }
-    }" class="p-6">
-
+    }" class="py-2 px-6 ">
         <!-- Standard Header as per Image 1 -->
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
@@ -38,8 +39,8 @@
                 </h2>
             </div>
 
-            <x-button @click="openModal()" variant="primary" size="md">
-                {{ __('Add New Device Type') }}
+            <x-button @click="openModal()" variant="primary" size="sm">
+                + {{ __('New') }}
             </x-button>
         </div>
 

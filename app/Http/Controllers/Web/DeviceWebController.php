@@ -45,7 +45,7 @@ class DeviceWebController extends Controller
 
         $device->update($validated);
 
-        return redirect()->route('devices.index')
+        return redirect()->back()
             ->with('success', 'Device type updated.');
     }
 
