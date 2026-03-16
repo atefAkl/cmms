@@ -19,16 +19,26 @@
                                 <x-input-label for="equipment_type" :value="__('Equipment Type')" />
                                 <select id="equipment_type" name="equipment_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                     <option value="App\Models\Room" {{ $schedule->equipment_type == 'App\Models\Room' ? 'selected' : '' }}>Room</option>
-                                    <option value="App\Models\Compressor" {{ $schedule->equipment_type == 'App\Models\Compressor' ? 'selected' : '' }}>Compressor</option>
-                                    <option value="App\Models\Evaporator" {{ $schedule->equipment_type == 'App\Models\Evaporator' ? 'selected' : '' }}>Evaporator</option>
+                                    <option value="App\Models\Asset" {{ $schedule->equipment_type == 'App\Models\Asset' ? 'selected' : '' }}>Asset</option>
                                 </select>
                                 <x-input-error :messages="$errors->get('equipment_type')" class="mt-2" />
                             </div>
 
-                            <!-- Equipment ID -->
+                            <!-- Equipment selection -->
                             <div>
-                                <x-input-label for="equipment_id" :value="__('Equipment ID')" />
-                                <x-text-input id="equipment_id" class="block mt-1 w-full" type="number" name="equipment_id" :value="old('equipment_id', $schedule->equipment_id)" required />
+                                <x-input-label for="equipment_id" :value="__('Select Equipment')" />
+                                <select id="equipment_id" name="equipment_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <optgroup label="Rooms">
+                                        @foreach($rooms as $room)
+                                            <option value="{{ $room->id }}" data-type="App\Models\Room" {{ ($schedule->equipment_type == 'App\Models\Room' && $schedule->equipment_id == $room->id) ? 'selected' : '' }}>{{ $room->name }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                    <optgroup label="Assets">
+                                        @foreach($assets as $asset)
+                                            <option value="{{ $asset->id }}" data-type="App\Models\Asset" {{ ($schedule->equipment_type == 'App\Models\Asset' && $schedule->equipment_id == $asset->id) ? 'selected' : '' }}>{{ $asset->name }} ({{ $asset->type }})</option>
+                                        @endforeach
+                                    </optgroup>
+                                </select>
                                 <x-input-error :messages="$errors->get('equipment_id')" class="mt-2" />
                             </div>
 

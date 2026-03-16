@@ -8,12 +8,12 @@ class RoomRepository
 {
     public function getAll()
     {
-        return Room::with(['compressors', 'evaporator'])->get();
+        return Room::with(['refrigerationSystems.assets'])->get();
     }
 
     public function find($id)
     {
-        return Room::with(['compressors', 'evaporator'])->findOrFail($id);
+        return Room::with(['refrigerationSystems.assets'])->findOrFail($id);
     }
 
     public function create(array $data)

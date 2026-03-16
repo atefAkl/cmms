@@ -2,32 +2,17 @@
 
 namespace App\Services;
 
-use App\Repositories\RoomRepository;
-use App\Repositories\CompressorRepository;
-use App\Repositories\EvaporatorRepository;
-
 class EquipmentService
 {
-    public function __construct(
-        protected RoomRepository $roomRepository,
-        protected CompressorRepository $compressorRepository,
-        protected EvaporatorRepository $evaporatorRepository
-    ) {}
-
-    public function createRoomWithEquipment(array $roomData, array $compressors, array $evaporator)
+    public function createRoomWithAssets(array $roomData, array $assetsData)
     {
-        $room = $this->roomRepository->create($roomData);
+        $room = \App\Models\Room::create($roomData);
 
-        foreach ($compressors as $compressorData) {
-            $compressorData['room_id'] = $room->id;
-            $this->compressorRepository->create($compressorData);
+        foreach ($assetsData as $assetData) {
+            $assetData['refrigeration_system_id'] = $assetData['system_id'];
+            \App\Models\Asset::create($assetData);
         }
 
-        if (!empty($evaporator)) {
-            $evaporator['room_id'] = $room->id;
-            $this->evaporatorRepository->create($evaporator);
-        }
-
-        return $this->roomRepository->find($room->id);
+        return $room->load('refrigerationSystems.assets');
     }
 }

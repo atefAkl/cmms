@@ -16,4 +16,9 @@ class Room extends Model
     {
         return $this->hasMany(RefrigerationSystem::class);
     }
+
+    public function sensors()
+    {
+        return $this->hasMany(TemperatureReading::class);
+    }
 }

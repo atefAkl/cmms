@@ -22,17 +22,19 @@
                 <div>
                     <x-label for="name" value="Asset Name" />
                     <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" value="{{ old('name', $asset->name) }}" required />
-                    <x-input-error for="name" class="mt-2" />
+                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
                 </div>
 
                 <div>
                     <x-label for="type" value="Asset Type" />
                     <select id="type" name="type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm font-bold text-gray-700">
-                        @foreach(['compressor', 'evaporator', 'motor', 'sensor', 'fan', 'heater', 'control_panel', 'power_panel'] as $type)
-                            <option value="{{ $type }}" {{ old('type', $asset->type) == $type ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $type)) }}</option>
+                        @foreach(['compressor', 'evaporator', 'dashboard', 'connectors', 'motor', 'sensor', 'fan', 'heater', 'control_panel', 'power_panel', 'etc'] as $type)
+                            <option value="{{ $type }}" {{ old('type', $asset->type) == $type ? 'selected' : '' }}>
+                                {{ $type === 'evaporator' ? 'Evaporator (Vabourator)' : ucfirst(str_replace('_', ' ', $type)) }}
+                            </option>
                         @endforeach
                     </select>
-                    <x-input-error for="type" class="mt-2" />
+                    <x-input-error :messages="$errors->get('type')" class="mt-2" />
                 </div>
 
                 <div>
@@ -56,7 +58,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <x-input-error for="refrigeration_system_id" class="mt-2" />
+                    <x-input-error :messages="$errors->get('refrigeration_system_id')" class="mt-2" />
                 </div>
 
                 <div>
@@ -69,7 +71,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <x-input-error for="parent_id" class="mt-2" />
+                    <x-input-error :messages="$errors->get('parent_id')" class="mt-2" />
                 </div>
             </div>
 

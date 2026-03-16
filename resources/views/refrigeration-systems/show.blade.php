@@ -49,32 +49,56 @@
 
                     <div class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100">
                         <div class="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-                            <h3 class="font-bold text-gray-900 border-l-4 border-indigo-500 pl-4">Equipment Inventory</h3>
+                            <h3 class="font-bold text-gray-900 border-l-4 border-indigo-500 pl-4">System Devices</h3>
+                            <a href="{{ route('system-devices.create', ['system_id' => $refrigerationSystem->id]) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg font-bold text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition shadow-sm">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                                Attach New Device
+                            </a>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left">
                                 <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-black tracking-widest">
                                     <tr>
-                                        <th class="px-8 py-4">Equipment Name</th>
-                                        <th class="px-8 py-4">Type</th>
-                                        <th class="px-8 py-4">Status</th>
+                                        <th class="px-8 py-4">Device Name</th>
+                                        <th class="px-8 py-4">Category</th>
+                                        <th class="px-8 py-4">Installation Date</th>
+                                        <th class="px-8 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
-                                    @foreach($refrigerationSystem->compressors as $compressor)
+                                    @forelse($refrigerationSystem->systemDevices as $sDevice)
                                         <tr class="hover:bg-gray-50 transition text-sm">
-                                            <td class="px-8 py-4 font-bold text-gray-900">{{ $compressor->name }}</td>
-                                            <td class="px-8 py-4"><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold uppercase">Compressor</span></td>
-                                            <td class="px-8 py-4"><span class="text-green-500 font-bold flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> {{ $compressor->status }}</span></td>
+                                            <td class="px-8 py-4 font-bold text-gray-900">
+                                                {{ $sDevice->name }}
+                                            </td>
+                                            <td class="px-8 py-4">
+                                                <span class="text-xs px-2 py-0.5 rounded font-bold uppercase bg-blue-100 text-blue-700">
+                                                    {{ $sDevice->device->name }}
+                                                </span>
+                                            </td>
+                                            <td class="px-8 py-4 text-gray-500 font-medium">
+                                                {{ $sDevice->installed ? $sDevice->installed->format('M d, Y') : 'N/A' }}
+                                            </td>
+                                            <td class="px-8 py-4 text-right">
+                                                <div class="flex items-center justify-end space-x-2">
+                                                    <a href="{{ route('system-devices.edit', $sDevice) }}" class="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Edit Device Details">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                                                    </a>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    @endforeach
-                                    @if($refrigerationSystem->evaporator)
-                                        <tr class="hover:bg-gray-50 transition text-sm">
-                                            <td class="px-8 py-4 font-bold text-gray-900">{{ $refrigerationSystem->evaporator->name ?? 'Evaporator Unit' }}</td>
-                                            <td class="px-8 py-4"><span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold uppercase">Evaporator</span></td>
-                                            <td class="px-8 py-4"><span class="text-green-500 font-bold flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> {{ $refrigerationSystem->evaporator->status }}</span></td>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="px-8 py-12 text-center">
+                                                <div class="flex flex-col items-center">
+                                                    <div class="p-4 bg-gray-50 rounded-full mb-4">
+                                                        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                                                    </div>
+                                                    <span class="text-gray-400 italic">No devices attached to this system.</span>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    @endif
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>

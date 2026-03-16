@@ -44,21 +44,41 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Basic Info Section -->
                             <div class="space-y-4">
-                                @if(auth()->user()->hasRole('Manager'))
-                                    <div>
-                                        <x-input-label for="room_id" :value="__('Room & System')" />
-                                        <select id="room_id" name="room_id" class="block mt-1 w-full border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm h-12">
-                                            @foreach($rooms as $room)
-                                                <option value="{{ $room->id }}" {{ old('room_id', $task->room_id) == $room->id ? 'selected' : '' }}>{{ $room->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                @else
-                                    <div class="bg-gray-50 p-4 rounded-xl">
-                                        <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Location</p>
-                                        <p class="font-bold text-gray-900 text-lg">{{ $task->room->name ?? 'General' }}</p>
-                                    </div>
-                                @endif
+                                    @if(auth()->user()->hasRole('Manager'))
+                                        <div>
+                                            <x-input-label for="room_id" :value="__('Room')" />
+                                            <select id="room_id" name="room_id" class="block mt-1 w-full border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm h-12">
+                                                @foreach($rooms as $room)
+                                                    <option value="{{ $room->id }}" {{ old('room_id', $task->room_id) == $room->id ? 'selected' : '' }}>{{ $room->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <x-input-label for="asset_id" :value="__('Associated Asset')" />
+                                            <select id="asset_id" name="asset_id" class="block mt-1 w-full border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl shadow-sm h-12">
+                                                <option value="">{{ __('No specific asset') }}</option>
+                                                @foreach($assets as $asset)
+                                                    <option value="{{ $asset->id }}" {{ old('asset_id', $task->asset_id) == $asset->id ? 'selected' : '' }}>
+                                                        {{ $asset->name }} ({{ $asset->refrigerationSystem->name }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @else
+                                        <div class="space-y-4">
+                                            <div class="bg-gray-50 p-4 rounded-xl">
+                                                <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Location</p>
+                                                <p class="font-bold text-gray-900 text-lg">{{ $task->room->name ?? 'General' }}</p>
+                                            </div>
+                                            @if($task->asset)
+                                                <div class="bg-indigo-50 p-4 rounded-xl">
+                                                    <p class="text-xs font-black text-indigo-400 uppercase tracking-widest">Asset</p>
+                                                    <p class="font-bold text-indigo-900 text-lg">{{ $task->asset->name }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
 
                                 <div>
                                     <x-input-label for="issue_description" :value="__('Details / Findings')" />

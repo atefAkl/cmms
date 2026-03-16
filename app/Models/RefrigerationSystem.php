@@ -27,6 +27,11 @@ class RefrigerationSystem extends Model
         return $this->hasMany(Asset::class)->whereNull('parent_id');
     }
 
+    public function systemDevices()
+    {
+        return $this->hasMany(SystemDevice::class);
+    }
+
     public function temperatureReadings()
     {
         return $this->hasMany(TemperatureReading::class);

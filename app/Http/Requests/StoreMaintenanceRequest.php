@@ -15,7 +15,7 @@ class StoreMaintenanceRequest extends FormRequest
     {
         return [
             'room_id' => 'required|exists:rooms,id',
-            'compressor_id' => 'nullable|exists:compressors,id',
+            'asset_id' => 'nullable|exists:assets,id',
             'issue_description' => 'required|string',
             'status' => 'required|string',
             'technician_id' => 'nullable|exists:users,id',

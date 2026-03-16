@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\PmSchedule;
 use App\Models\Room;
-use App\Models\Compressor;
-use App\Models\Evaporator;
+use App\Models\Asset;
 use App\Http\Requests\StorePmScheduleRequest;
 use App\Http\Requests\UpdatePmScheduleRequest;
 use Illuminate\Http\Request;
@@ -22,9 +21,8 @@ class PmScheduleWebController extends Controller
     public function create()
     {
         $rooms = Room::all();
-        $compressors = Compressor::all();
-        $evaporators = Evaporator::all();
-        return view('pm-schedules.create', compact('rooms', 'compressors', 'evaporators'));
+        $assets = Asset::all();
+        return view('pm-schedules.create', compact('rooms', 'assets'));
     }
 
     public function store(StorePmScheduleRequest $request)
@@ -36,13 +34,11 @@ class PmScheduleWebController extends Controller
     public function edit(PmSchedule $pm_schedule)
     {
         $rooms = Room::all();
-        $compressors = Compressor::all();
-        $evaporators = Evaporator::all();
+        $assets = Asset::all();
         return view('pm-schedules.edit', [
             'schedule' => $pm_schedule,
             'rooms' => $rooms,
-            'compressors' => $compressors,
-            'evaporators' => $evaporators
+            'assets' => $assets
         ]);
     }
 

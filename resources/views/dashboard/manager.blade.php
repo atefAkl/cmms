@@ -92,7 +92,8 @@
                                         <div class="pl-4 border-l-2 border-indigo-100">
                                             <div class="flex justify-between items-center mb-2">
                                                 <span class="text-[10px] font-black uppercase tracking-widest text-indigo-400">System: {{ $system->name }}</span>
-                                                <span class="text-[10px] font-bold text-gray-400 italic">{{ $room->sensors->last()->temperature ?? 'N/A' }}°C</span>
+                                                <p class="text-xs text-gray-400 uppercase font-bold">Current Temp</p>
+                                                <p class="text-xl font-black text-gray-900">{{ optional($room->sensors->last())->temperature ?? 'N/A' }}°C</p>
                                             </div>
                                             <div class="space-y-1">
                                                 @php $topAssets = $system->assets->whereNull('parent_id')->take(3); @endphp

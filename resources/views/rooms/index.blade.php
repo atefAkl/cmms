@@ -48,9 +48,14 @@
                                 <span class="text-xs font-medium text-gray-500">{{ number_format($room->max_temperature, 2) }}°C</span>
                             </td>
                             <td class="px-6 py-4">
+                                @php
+                                    $totalAssets = $room->refrigerationSystems->sum(fn($system) => $system->assets->count());
+                                    $topLevelAssets = $room->refrigerationSystems->sum(fn($system) => $system->assets->whereNull('parent_id')->count());
+                                @endphp
                                 <span class="text-xs font-semibold text-gray-600">
-                                    {{ $room->compressors?->count() ?? 0 }} Comp. / {{ $room->evaporator ? 1 : 0 }} Evap.
+                                    {{ $room->refrigerationSystems->count() }} Systems / {{ $totalAssets }} Total Assets
                                 </span>
+                                <div class="text-[10px] text-gray-400 italic">({{ $topLevelAssets }} Main Units)</div>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">

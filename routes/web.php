@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('alerts', \App\Http\Controllers\Web\AlertWebController::class);
     Route::resource('refrigeration-systems', \App\Http\Controllers\RefrigerationSystemController::class);
     Route::resource('assets', \App\Http\Controllers\AssetController::class);
+    Route::resource('system-devices', \App\Http\Controllers\Web\SystemDeviceWebController::class);
+    Route::resource('devices', \App\Http\Controllers\Web\DeviceWebController::class);
+    Route::get('/settings', [\App\Http\Controllers\Web\SettingsWebController::class, 'index'])->name('settings.index');
 });
 
 require __DIR__.'/auth.php';

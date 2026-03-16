@@ -38,7 +38,7 @@ class RefrigerationSystemController extends Controller
 
     public function show(RefrigerationSystem $refrigerationSystem)
     {
-        $refrigerationSystem->load(['room', 'compressors', 'evaporator', 'temperatureReadings' => function($q) {
+        $refrigerationSystem->load(['room', 'systemDevices.device', 'temperatureReadings' => function($q) {
             $q->latest()->take(10);
         }]);
         return view('refrigeration-systems.show', compact('refrigerationSystem'));

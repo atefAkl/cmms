@@ -24,7 +24,7 @@ class DashboardService
     {
         return Cache::remember('manager_dashboard_stats', 300, function () {
             return [
-                'rooms' => Room::with('refrigerationSystems.assets')->get(),
+                'rooms' => Room::with(['refrigerationSystems.assets', 'sensors'])->get(),
                 'active_alerts' => Alert::where('status', 'open')->count(),
                 'equipment_health' => $this->calculateEquipmentHealth(),
                 'upcoming_pm' => PmTask::where('status', PmTask::STATUS_PENDING)

@@ -24,6 +24,20 @@
                                 <x-input-error :messages="$errors->get('room_id')" class="mt-2" />
                             </div>
 
+                            <!-- Asset selection -->
+                            <div>
+                                <x-input-label for="asset_id" :value="__('Associated Asset (Optional)')" />
+                                <select id="asset_id" name="asset_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">{{ __('No specific asset') }}</option>
+                                    @foreach($assets as $asset)
+                                        <option value="{{ $asset->id }}" {{ old('asset_id', $selectedAssetId ?? '') == $asset->id ? 'selected' : '' }}>
+                                            {{ $asset->name }} ({{ $asset->refrigerationSystem->name }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('asset_id')" class="mt-2" />
+                            </div>
+
                             <!-- Description -->
                             <div class="md:col-span-2">
                                 <x-input-label for="issue_description" :value="__('Issue Description')" />

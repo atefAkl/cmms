@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\MaintenanceTask;
 use App\Models\Room;
+use App\Models\Asset;
 use App\Models\User;
 use App\Http\Requests\StoreMaintenanceRequest;
 use App\Http\Requests\UpdateMaintenanceRequest;
@@ -14,7 +15,7 @@ class MaintenanceWebController extends Controller
 {
     public function index()
     {
-        $query = MaintenanceTask::with(['room', 'compressor', 'technician'])->latest();
+        $query = MaintenanceTask::with(['room', 'asset', 'technician'])->latest();
 
         // If not a Manager, filter by technician_id
         if (!auth()->user()->hasRole('Manager')) {
@@ -28,8 +29,9 @@ class MaintenanceWebController extends Controller
     public function create()
     {
         $rooms = Room::all();
+        $assets = Asset::with('refrigerationSystem')->get();
         $technicians = User::all();
-        return view('maintenance.create', compact('rooms', 'technicians'));
+        return view('maintenance.create', compact('rooms', 'assets', 'technicians'));
     }
 
     public function store(StoreMaintenanceRequest $request)
@@ -41,10 +43,12 @@ class MaintenanceWebController extends Controller
     public function edit(MaintenanceTask $maintenance)
     {
         $rooms = Room::all();
+        $assets = Asset::with('refrigerationSystem')->get();
         $technicians = User::all();
         return view('maintenance.edit', [
             'task' => $maintenance,
             'rooms' => $rooms,
+            'assets' => $assets,
             'technicians' => $technicians
         ]);
     }

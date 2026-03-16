@@ -10,7 +10,7 @@ class RoomWebController extends Controller
 {
     public function index()
     {
-        $rooms = Room::with('compressors', 'evaporator')->paginate(10);
+        $rooms = Room::with('refrigerationSystems.assets')->paginate(10);
         return view('rooms.index', compact('rooms'));
     }
 

@@ -21,22 +21,25 @@
                 <div>
                     <x-label for="name" value="Asset Name" />
                     <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" value="{{ old('name') }}" required autofocus />
-                    <x-input-error for="name" class="mt-2" />
+                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
                 </div>
 
                 <div>
                     <x-label for="type" value="Asset Type" />
                     <select id="type" name="type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm font-bold text-gray-700">
                         <option value="compressor">Compressor</option>
-                        <option value="evaporator">Evaporator</option>
+                        <option value="evaporator">Evaporator (Vabourator)</option>
+                        <option value="dashboard">Dashboard / Display</option>
+                        <option value="connectors">Connectors / Fittings</option>
                         <option value="motor">Motor</option>
                         <option value="sensor">Sensor</option>
                         <option value="fan">Fan</option>
                         <option value="heater">Heater</option>
                         <option value="control_panel">Control Panel</option>
                         <option value="power_panel">Power Panel</option>
+                        <option value="etc">Etc / Generic</option>
                     </select>
-                    <x-input-error for="type" class="mt-2" />
+                    <x-input-error :messages="$errors->get('type')" class="mt-2" />
                 </div>
 
                 <div>
@@ -61,7 +64,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <x-input-error for="refrigeration_system_id" class="mt-2" />
+                    <x-input-error :messages="$errors->get('refrigeration_system_id')" class="mt-2" />
                 </div>
 
                 <div>
@@ -74,7 +77,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <x-input-error for="parent_id" class="mt-2" />
+                    <x-input-error :messages="$errors->get('parent_id')" class="mt-2" />
                     <p class="text-[10px] text-gray-400 mt-1 italic">Selecting a parent makes this asset a component of the parent device.</p>
                 </div>
             </div>

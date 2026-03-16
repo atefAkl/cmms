@@ -18,17 +18,26 @@
                                 <x-input-label for="equipment_type" :value="__('Equipment Type')" />
                                 <select id="equipment_type" name="equipment_type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                     <option value="App\Models\Room">Room</option>
-                                    <option value="App\Models\Compressor">Compressor</option>
-                                    <option value="App\Models\Evaporator">Evaporator</option>
+                                    <option value="App\Models\Asset">Asset (Compressor, Evaporator, etc.)</option>
                                 </select>
                                 <x-input-error :messages="$errors->get('equipment_type')" class="mt-2" />
                             </div>
 
-                            <!-- Equipment ID -->
+                            <!-- Equipment selection -->
                             <div>
-                                <x-input-label for="equipment_id" :value="__('Equipment ID')" />
-                                <x-text-input id="equipment_id" class="block mt-1 w-full" type="number" name="equipment_id" :value="old('equipment_id')" required />
-                                <p class="text-xs text-gray-500 mt-1">Enter the numeric ID of the selected equipment type.</p>
+                                <x-input-label for="equipment_id" :value="__('Select Equipment')" />
+                                <select id="equipment_id" name="equipment_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <optgroup label="Rooms">
+                                        @foreach($rooms as $room)
+                                            <option value="{{ $room->id }}" data-type="App\Models\Room">{{ $room->name }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                    <optgroup label="Assets">
+                                        @foreach($assets as $asset)
+                                            <option value="{{ $asset->id }}" data-type="App\Models\Asset">{{ $asset->name }} ({{ $asset->type }})</option>
+                                        @endforeach
+                                    </optgroup>
+                                </select>
                                 <x-input-error :messages="$errors->get('equipment_id')" class="mt-2" />
                             </div>
 
