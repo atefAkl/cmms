@@ -1,15 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center text-center sm:text-left">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Procurement Management') }}
-            </h2>
-            <a href="{{ route('procurement.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-lg flex items-center transition">
-                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                New Purchase Record
-            </a>
-        </div>
-    </x-slot>
+    <x-page-header 
+        title="{{ __('Procurement Management') }}" 
+        description="Track and manage all purchase records and supply orders."
+        :actionUrl="route('procurement.create')"
+        actionLabel="New Purchase"
+    />
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -35,19 +30,19 @@
                         <table class="w-full text-left">
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-100">
-                                    <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Ref #</th>
-                                    <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Supplier</th>
-                                    <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Date</th>
-                                    <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Status</th>
-                                    <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Totals</th>
-                                    <th class="p-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Ref #</th>
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Supplier</th>
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Date</th>
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Status</th>
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Totals</th>
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($purchases as $order)
                                     <tr class="border-b transition hover:bg-gray-50 border-gray-50">
-                                        <td class="p-4 font-bold text-gray-700">#{{ $order->reference_number ?? str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</td>
-                                        <td class="p-4">
+                                        <td class="px-4 py-1 font-bold text-gray-700">#{{ $order->reference_number ?? str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</td>
+                                        <td class="px-4 py-1">
                                             <div class="flex items-center">
                                                 <div class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold mr-3 text-xs">
                                                     {{ substr($order->supplier->name ?? '?', 0, 1) }}
@@ -55,8 +50,8 @@
                                                 <span class="text-gray-700 font-medium">{{ $order->supplier->name ?? 'Unknown / Misc' }}</span>
                                             </div>
                                         </td>
-                                        <td class="p-4 text-center text-gray-500 text-sm">{{ $order->transaction_date }}</td>
-                                        <td class="p-4 text-center">
+                                        <td class="px-4 py-1 text-center text-gray-500 text-sm">{{ $order->transaction_date }}</td>
+                                        <td class="px-4 py-1 text-center">
                                             <div class="flex flex-col gap-1 items-center">
                                                 <span class="inline-flex px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-full {{ $order->status === 'received' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
                                                     {{ $order->status }}
@@ -64,8 +59,8 @@
                                                 <span class="text-[9px] text-gray-400 font-bold uppercase">{{ $order->payment_status }}</span>
                                             </div>
                                         </td>
-                                        <td class="p-4 text-center font-black text-gray-900">{{ number_format($order->total_cost, 2) }} <small class="text-[10px] text-gray-400">SAR</small></td>
-                                        <td class="p-4 text-right">
+                                        <td class="px-4 py-1 text-center font-black text-gray-900">{{ number_format($order->total_cost, 2) }} <small class="text-[10px] text-gray-400">SAR</small></td>
+                                        <td class="px-4 py-1 text-right">
                                             <a href="{{ route('procurement.show', $order) }}" class="text-indigo-600 hover:text-indigo-900 font-bold text-sm">View</a>
                                         </td>
                                     </tr>
@@ -104,9 +99,11 @@
                             </div>
                         @endforeach
                     </div>
-                    <div class="mt-6">
-                        {{ $purchases->links() }}
-                    </div>
+                    @if($purchases->hasPages())
+                        <div class="mt-6">
+                            {{ $purchases->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

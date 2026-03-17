@@ -1,24 +1,12 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-page-header 
+        title="Asset Hierarchy" 
+        description="Manage refrigeration systems and components in a hierarchical tree."
+        :actionUrl="route('assets.create')"
+        actionLabel="Add New Asset"
+    />
 
-@section('content')
-<div class="mb-6 flex justify-between items-center px-4 sm:px-0">
-    <div>
-        <h1 class="text-2xl font-black text-gray-900">Asset Hierarchy</h1>
-        <p class="text-gray-500 text-sm">Manage refrigeration systems and components in a hierarchical tree.</p>
-    </div>
-    <a href="{{ route('assets.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/20">
-        Add New Asset
-    </a>
-</div>
-
-@if (session('success'))
-    <div class="mb-6 p-4 bg-green-50 border border-green-100 rounded-xl text-sm font-bold text-green-700 flex items-center gap-3">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        {{ session('success') }}
-    </div>
-@endif
-
-<div class="space-y-6">
+    <div class="space-y-6">
     @foreach($rooms as $room)
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200" x-data="{ open: true }">
             <div class="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center cursor-pointer" @click="open = !open">
@@ -63,4 +51,4 @@
         </div>
     @endforeach
 </div>
-@endsection
+</x-app-layout>

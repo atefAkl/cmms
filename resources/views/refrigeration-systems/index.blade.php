@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
     <div class="mb-6 flex justify-between items-center px-4 sm:px-0">
         <div>
             <h1 class="text-2xl font-black text-gray-900">Refrigeration Systems</h1>
@@ -50,5 +48,5 @@
             </div>
         @endforeach
     </div>
-@endsection
+</x-app-layout>
 

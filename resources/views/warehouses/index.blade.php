@@ -1,88 +1,146 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Warehouses') }}
-            </h2>
-            <button @click="$dispatch('open-modal', 'create-warehouse')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow transition">
-                + New Warehouse
-            </button>
-        </div>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-100">
-                <div class="p-6 text-gray-900">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 border-b">
-                                <th class="p-4 font-semibold text-gray-600">Name</th>
-                                <th class="p-4 font-semibold text-gray-600">Location</th>
-                                <th class="p-4 font-semibold text-gray-600 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($warehouses as $warehouse)
-                                <tr class="border-b transition hover:bg-gray-50">
-                                    <td class="p-4 font-medium text-gray-800">{{ $warehouse->name }}</td>
-                                    <td class="p-4 text-gray-500">{{ $warehouse->location ?? 'N/A' }}</td>
-                                    <td class="p-4 text-right space-x-2 text-sm">
-                                        <button @click="$dispatch('open-modal', 'edit-warehouse-{{ $warehouse->id }}')" class="text-indigo-600 hover:underline">Edit</button>
-                                        <form action="{{ route('warehouses.destroy', $warehouse) }}" method="POST" class="inline">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Delete warehouse?')">Delete</button>
-                                        </form>
-                                    </td>
+    <div x-data="{}" x-init="
+        @if($errors->any())
+            @if(old('warehouse_id'))
+                $nextTick(() => $dispatch('open-modal', 'edit-warehouse-{{ old('warehouse_id') }}'));
+            @else
+                $nextTick(() => $dispatch('open-modal', 'create-warehouse'));
+            @endif
+        @endif
+    ">
+        <div class="mb-6">
+            <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
+                <x-page-header title="{{ __('Warehouses') }}"
+                    description="Manage physical storage locations and inventory bins.">
+                    <x-button variant="primary" size="sm" @click="$dispatch('open-modal', 'create-warehouse')">
+                        <i class="fa fa-plus me-3"></i> {{__('New')}}
+                    </x-button>
+                </x-page-header>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-100">
+                    <div class="p-6 text-gray-900">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        Name</th>
+                                    <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        Location</th>
+                                    <th
+                                        class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                        Actions</th>
                                 </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($warehouses as $warehouse)
+                                    <tr class="border-b transition hover:bg-gray-50">
+                                        <td class="p-4 font-medium text-gray-800">{{ $warehouse->name }}</td>
+                                        <td class="p-4 text-gray-500">{{ $warehouse->location ?? 'N/A' }}</td>
+                                        <td class="p-4 text-right space-x-2 text-sm">
+                                            <button @click="$dispatch('open-modal', 'edit-warehouse-{{ $warehouse->id }}')"
+                                                class="text-indigo-600 hover:underline font-bold uppercase tracking-widest text-[10px]">Edit</button>
+                                            <form action="{{ route('warehouses.destroy', $warehouse) }}" method="POST"
+                                                class="inline">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:underline font-bold uppercase tracking-widest text-[10px]"
+                                                    onclick="return confirm('Delete warehouse?')">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
 
-                                <!-- Edit Modal -->
-                                <x-modal name="edit-warehouse-{{ $warehouse->id }}" focusable>
-                                    <form method="post" action="{{ route('warehouses.update', $warehouse) }}" class="p-6">
-                                        @csrf @method('PATCH')
-                                        <h2 class="text-lg font-medium text-gray-900">Edit Warehouse</h2>
-                                        <div class="mt-4">
-                                            <x-input-label for="name" value="Warehouse Name" />
-                                            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="$warehouse->name" required />
-                                        </div>
-                                        <div class="mt-4">
-                                            <x-input-label for="location" value="Location" />
-                                            <x-text-input id="location" name="location" type="text" class="mt-1 block w-full" :value="$warehouse->location" />
-                                        </div>
-                                        <div class="mt-6 flex justify-end">
-                                            <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
-                                            <x-danger-button class="ms-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800">Save Changes</x-danger-button>
-                                        </div>
-                                    </form>
-                                </x-modal>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <div class="mt-4">
-                        {{ $warehouses->links() }}
+                                    <!-- Edit Modal -->
+                                    <x-modal name="edit-warehouse-{{ $warehouse->id }}" focusable>
+                                        <form method="post" action="{{ route('warehouses.update', $warehouse) }}" class="p-6">
+                                            @csrf @method('PATCH')
+                                            <input type="hidden" name="warehouse_id" value="{{ $warehouse->id }}">
+                                            <h2 class="text-lg font-medium text-gray-900">Edit Warehouse</h2>
+                                            <div class="mt-4">
+                                                <x-input-label for="name" value="Warehouse Name" />
+                                                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full"
+                                                    :value="old('name', $warehouse->name)" required />
+                                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                                            </div>
+                                            <div class="mt-4">
+                                                <x-input-label for="location" value="Location" />
+                                                <x-text-input id="location" name="location" type="text"
+                                                    class="mt-1 block w-full" :value="old('location', $warehouse->location)" />
+                                                <x-input-error :messages="$errors->get('location')" class="mt-2" />
+                                            </div>
+                                            <div class="mt-6 flex justify-end">
+                                                <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
+                                                <x-button variant="primary" class="ms-3">Save Changes</x-button>
+                                            </div>
+                                        </form>
+                                    </x-modal>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @if($warehouses->hasPages())
+                            <div class="mt-4">
+                                {{ $warehouses->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Create Modal -->
-    <x-modal name="create-warehouse" focusable>
-        <form method="post" action="{{ route('warehouses.store') }}" class="p-6">
-            @csrf
-            <h2 class="text-lg font-medium text-gray-900">Create New Warehouse</h2>
-            <div class="mt-4">
-                <x-input-label for="name" value="Warehouse Name" />
-                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" placeholder="e.g. Main Store, Floor-1 Spare Rack" required />
-            </div>
-            <div class="mt-4">
-                <x-input-label for="location" value="Location" />
-                <x-text-input id="location" name="location" type="text" class="mt-1 block w-full" placeholder="Internal address or coordinates" />
-            </div>
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
-                <x-danger-button class="ms-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800">Create</x-danger-button>
-            </div>
-        </form>
-    </x-modal>
+        <!-- Create Modal -->
+        <x-modal name="create-warehouse" focusable>
+            <form method="post" action="{{ route('warehouses.store') }}" class="p-6">
+                @csrf
+                <h2 class="text-lg font-medium text-gray-900">Create New Warehouse</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mt-4">
+                        <x-input-label for="name" value="Warehouse Name" />
+                        <x-text-input id="name" name="name" type="text" class="mt-1 block w-full"
+                            placeholder="e.g. Main Store" required :value="old('name')" />
+                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                    </div>
+                    <div class="mt-4">
+                        <x-input-label for="max_room_count" value="Warehouse Rooms" />
+                        <x-text-input id="max_room_count" name="max_room_count" type="number" class="mt-1 block w-full"
+                            placeholder="4.00" required :value="old('max_room_count')" />
+                        <x-input-error :messages="$errors->get('max_room_count')" class="mt-2" />
+                    </div>
+                    <div class="mt-4">
+                        <x-input-label for="max_path_count" value="Warehouse Paths" />
+                        <x-text-input id="max_path_count" name="max_path_count" type="number" class="mt-1 block w-full"
+                            placeholder="2.00" required :value="old('max_path_count')" />
+                        <x-input-error :messages="$errors->get('max_path_count')" class="mt-2" />
+                    </div>
+                    <div class="mt-4">
+                        <x-input-label for="diameter" value="Warehouse Diameter" />
+                        <div class="grid grid-cols-2 gap-2">
+                            <x-text-input id="wh_width" name="wh_width" type="number" class="mt-1" placeholder="Width"
+                                required :value="old('wh_width')" />
+                            <x-text-input id="wh_length" name="wh_length" type="number" class="mt-1" placeholder="Depth"
+                                required :value="old('wh_length')" />
+                        </div>
+                        <x-input-error :messages="$errors->get('wh_width')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('wh_length')" class="mt-2" />
+                    </div>
+                    <div class="mt-4">
+                        <x-input-label for="diameter_unit" value="Warehouse Diameter Unit" />
+                        <select id="diameter_unit" name="diameter_unit" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            <option value="">Select Unit</option>
+                            @foreach(['mm' => 'Millimeters', 'cm' => 'Centimeters', 'm' => 'Meters', 'in' => 'Inches', 'ft' => 'Feet'] as $value => $label)
+                                <option value="{{ $value }}" {{ old('diameter_unit') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('diameter_unit')" class="mt-2" />
+                    </div>
+                    <div class="mt-4">
+                        <x-input-label for="door_dimensions" value="Warehouse Door Dimensions" />
+                        <x-text-input id="door_dimensions" name="door_dimensions" type="text" class="mt-1 block w-full"
+                            placeholder="width X height" required :value="old('door_dimensions')" />
+                        <x-input-error :messages="$errors->get('door_dimensions')" class="mt-2" />
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <x-button variant="secondary" x-on:click="$dispatch('close')">Cancel</x-button>
+                    <x-button variant="primary" class="ms-3">Create</x-button>
+                </div>
+            </form>
+        </x-modal>
+    </div>
 </x-app-layout>

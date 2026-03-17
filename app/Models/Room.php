@@ -21,4 +21,9 @@ class Room extends Model
     {
         return $this->hasMany(TemperatureReading::class);
     }
+
+    public function warehouses()
+    {
+        return $this->belongsToMany(Warehouse::class, 'warehouses', 'location', 'id');
+    }
 }

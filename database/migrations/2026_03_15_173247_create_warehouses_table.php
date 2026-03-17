@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,9 +13,17 @@ return new class extends Migration
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('location')->nullable();
-            $table->text('description')->nullable();
+            $table->string('slug');
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->integer('max_room_count');
+            $table->integer('max_path_count');
+            $table->decimal('diameter', 10, 2);
+            $table->string('diameter_unit');
+            $table->string('door_dimensions');
             $table->boolean('is_active')->default(true);
+
+            $table->engine('INNODB');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

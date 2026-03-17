@@ -11,16 +11,6 @@
         @endif
     ">
 
-        <!-- General Status Messages -->
-
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
-            <x-auth-session-status class="mb-4" :status="session('success')" />
-            @if(session('error'))
-                <div class="mb-4 font-medium text-sm text-red-600 bg-red-50 p-4 rounded-lg border border-red-100">
-                    {{ session('error') }}
-                </div>
-            @endif
-        </div>
 
 
 
@@ -28,35 +18,24 @@
 
         <div class="py-2">
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-4">
-                        <a href="{{ route('settings.index') }}"
-                            class="p-2 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-gray-600 transition shadow-sm">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 19l-7-7 7-7">
-                                </path>
-                            </svg>
-                        </a>
-                        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                            {{ __('Item Categories') }}
-                        </h2>
-                    </div>
-
-                    <x-button variant="primary" size="sm" @click="$dispatch('open-modal', 'create-category')">
-                        + {{__('New')}}
-                    </x-button>
-                </div>
+    <x-page-header 
+        title="{{ __('Item Categories') }}" 
+        description="Organize your items into parent-child relationships."
+    >
+        <x-button variant="primary" size="sm" @click="$dispatch('open-modal', 'create-category')">
+            + {{__('New')}}
+        </x-button>
+    </x-page-header>
                 <div class="bg-white overflow-hidden shadow sm:rounded-lg border border-gray-100">
 
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-200 hover:bg-gray-300 border-b">
-                                <th class="px-4 py-3 font-semibold text-gray-600">Name</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Slug</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Items Count</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Parent</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600 text-right">Actions</th>
+                            <tr class="bg-gray-50 border-b border-gray-100">
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Name</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Slug</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Items Count</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Parent</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="mb-6 flex items-center gap-4 px-4 sm:px-0">
     <a href="{{ route('assets.index') }}" class="p-2 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-gray-600 transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
@@ -116,4 +114,4 @@
         @method('DELETE')
     </form>
 </div>
-@endsection
+</x-app-layout>

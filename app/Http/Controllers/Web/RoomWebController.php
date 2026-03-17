@@ -36,6 +36,16 @@ class RoomWebController extends Controller
         return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');
     }
 
+    /**
+     * Display the specified resource.
+     */
+    public function show(Room $room)
+    {
+        //
+        $warehouses = $room->warehouses()->paginate(10);
+        return view('rooms.show', compact('room', 'warehouses'));
+    }
+
     public function destroy(Room $room)
     {
         $room->delete();

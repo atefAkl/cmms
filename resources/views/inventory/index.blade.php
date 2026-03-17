@@ -1,43 +1,31 @@
-@extends('layouts.app')
-
-@section('content')
-    <div class="mb-6 flex justify-between items-center px-4 sm:px-0">
-        <div>
-            <h1 class="text-2xl font-black text-gray-900">Inventory Items</h1>
-            <p class="text-gray-500 text-sm">Manage spare parts, consumables, and supply stock levels.</p>
-        </div>
-        <a href="{{ route('inventory.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/20">
-            Add New Part
-        </a>
-    </div>
-
-    @if (session('success'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-100 rounded-xl text-sm font-bold text-green-700 flex items-center gap-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            {{ session('success') }}
-        </div>
-    @endif
+<x-app-layout>
+    <x-page-header 
+        title="Inventory Items" 
+        description="Manage spare parts, consumables, and supply stock levels."
+        :actionUrl="route('inventory.create')"
+        actionLabel="Add New Part"
+    />
 
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
         <div class="p-0 text-gray-900 overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400">Part Info</th>
-                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400">Stock Level</th>
-                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400">Supplier</th>
-                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400">Unit Cost</th>
-                        <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
+                        <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Part Info</th>
+                        <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Stock Level</th>
+                        <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Supplier</th>
+                        <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Unit Cost</th>
+                        <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($parts as $part)
                         <tr class="hover:bg-gray-50/50 transition">
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-1">
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">{{ $part->part_number }}</span>
                                 <div class="font-bold text-gray-900">{{ $part->name }}</div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-1">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-black {{ $part->stock <= $part->min_stock_level ? 'text-red-500' : 'text-green-600' }}">
                                         {{ $part->stock }} 
@@ -49,10 +37,10 @@
                                          style="width: {{ min(100, ($part->stock / max(1, $part->min_stock_level * 2)) * 100) }}%"></div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-1">
                                 <div class="text-sm font-bold text-gray-700">{{ $part->supplier ? $part->supplier->name : 'N/A' }}</div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-1">
                                 <div class="text-sm font-black text-gray-900">{{ number_format($part->cost, 2) }} <span class="text-[10px] text-gray-400">SAR</span></div>
                             </td>
                             <td class="px-6 py-4 text-right">
@@ -76,8 +64,10 @@
         </div>
     </div>
 
-    <div class="mt-6">
-        {{ $parts->links() }}
-    </div>
-@endsection
+    @if($parts->hasPages())
+        <div class="mt-6">
+            {{ $parts->links() }}
+        </div>
+    @endif
+</x-app-layout>
 

@@ -11,6 +11,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -29,6 +30,20 @@
 
             <!-- Page Content - Only area that scrolls -->
             <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                @if (session('success'))
+                    <div class="mb-6 p-4 bg-green-50 border border-green-100 rounded-xl text-sm font-bold text-green-700 flex items-center gap-3">
+                        <i class="fa fa-check-circle"></i>
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-sm font-bold text-red-700 flex items-center gap-3">
+                        <i class="fa fa-exclamation-circle"></i>
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 @isset($slot)
                     {{ $slot }}
                 @else

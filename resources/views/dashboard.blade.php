@@ -1,10 +1,8 @@
-@extends('layouts.app')
-
-@section('content')
-    <div class="mb-4">
-        <h1 class="text-2xl font-black text-gray-900">Maintenance Dashboard</h1>
-        <p class="text-gray-500 text-sm">Welcome back, {{ Auth::user()->name }}</p>
-    </div>
+<x-app-layout>
+    <x-page-header 
+        title="Maintenance Dashboard" 
+        description="Welcome back, {{ Auth::user()->name }}"
+    />
 
     <div class="space-y-6">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
@@ -22,5 +20,5 @@
             </div>
         </div>
     </div>
-@endsection
+</x-app-layout>
 

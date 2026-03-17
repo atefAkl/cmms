@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-black text-gray-900">{{ $asset->name }}</h1>
@@ -157,4 +155,4 @@
             </div>
         </div>
     </div>
-@endsection
+</x-app-layout>
