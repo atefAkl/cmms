@@ -25,13 +25,14 @@ class DemoDataSeeder extends Seeder
         $officer = User::role('Maintenance Officer')->first() ?? User::factory()->create();
 
         $rooms = collect();
-        for ($i=1; $i<=3; $i++) {
+        for ($i = 1; $i <= 3; $i++) {
             $rooms->push(Room::create([
                 'name' => "Cold Room 0$i",
-                'location' => "Warehouse A - Sector $i",
-                'target_temperature' => -18.0,
-                'min_temperature' => -20.0,
-                'max_temperature' => -15.0,
+                'slug' => "cold-room-0$i",
+                'status' => 'running',
+                'is_active' => true,
+                'created_by' => $officer->id,
+                'updated_by' => $officer->id,
             ]));
         }
 

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('system_devices', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->foreignId('refrigeration_system_id')->constrained('refrigeration_systems')->onDelete('cascade');
             $table->string('name', 45);

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('maintenance_tasks', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
             $table->foreignId('compressor_id')->nullable()->constrained()->nullOnDelete();

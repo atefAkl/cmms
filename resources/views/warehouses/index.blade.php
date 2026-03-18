@@ -49,23 +49,63 @@
 
                                     <!-- Edit Modal -->
                                     <x-modal name="edit-warehouse-{{ $warehouse->id }}" focusable>
-                                        <form method="post" action="{{ route('warehouses.update', $warehouse) }}" class="p-6">
+                                        <h2 class="text-lg border-b border-gray-100 font-medium text-gray-900 py-3 px-5">Edit Warehouse</h2>
+                                        <form method="post" action="{{ route('warehouses.update', $warehouse) }}" class="">
                                             @csrf @method('PATCH')
                                             <input type="hidden" name="warehouse_id" value="{{ $warehouse->id }}">
-                                            <h2 class="text-lg font-medium text-gray-900">Edit Warehouse</h2>
-                                            <div class="mt-4">
-                                                <x-input-label for="name" value="Warehouse Name" />
-                                                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full"
-                                                    :value="old('name', $warehouse->name)" required />
-                                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
+                                                <div class="mt-4">
+                                                    <x-input-label for="name" value="Warehouse Name" />
+                                                    <x-text-input id="name" name="name" type="text" class="mt-1 block w-full"
+                                                        placeholder="e.g. Main Store" required :value="old('name', $warehouse->name)" />
+                                                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                                                </div>
+                                                <div class="mt-4">
+                                                    <x-input-label for="max_room_count" value="Warehouse Rooms" />
+                                                    <x-text-input id="max_room_count" name="max_room_count" type="number" class="mt-1 block w-full"
+                                                        placeholder="4.00" required :value="old('max_room_count', $warehouse->max_room_count)" />
+                                                    <x-input-error :messages="$errors->get('max_room_count')" class="mt-2" />
+                                                </div>
+                                                <div class="mt-4">
+                                                    <x-input-label for="max_path_count" value="Warehouse Paths" />
+                                                    <x-text-input id="max_path_count" name="max_path_count" type="number" class="mt-1 block w-full"
+                                                        placeholder="2.00" required :value="old('max_path_count', $warehouse->max_path_count)" />
+                                                    <x-input-error :messages="$errors->get('max_path_count')" class="mt-2" />
+                                                </div>
+                                                <div class="mt-4">
+                                                    <x-input-label for="diameter" value="Warehouse Diameter" />
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <x-text-input id="wh_width" name="wh_width" type="number" class="mt-1" placeholder="Width"
+                                                            required :value="old('wh_width', is_array($warehouse->diameter) ? ($warehouse->diameter['width'] ?? '') : '')" />
+                                                        <x-text-input id="wh_length" name="wh_length" type="number" class="mt-1" placeholder="Depth"
+                                                            required :value="old('wh_length', is_array($warehouse->diameter) ? ($warehouse->diameter['length'] ?? '') : '')" />
+                                                    </div>
+                                                    <x-input-error :messages="$errors->get('wh_width')" class="mt-2" />
+                                                    <x-input-error :messages="$errors->get('wh_length')" class="mt-2" />
+                                                </div>
+                                                <div class="mt-4">
+                                                    <x-input-label for="diameter_unit" value="Warehouse Diameter Unit" />
+                                                    <select id="diameter_unit" name="diameter_unit" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                                        <option value="">Select Unit</option>
+                                                        @foreach(['mm' => 'Millimeters', 'cm' => 'Centimeters', 'm' => 'Meters', 'in' => 'Inches', 'ft' => 'Feet'] as $value => $label)
+                                                            <option value="{{ $value }}" {{ old('diameter_unit', $warehouse->diameter_unit) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <x-input-error :messages="$errors->get('diameter_unit')" class="mt-2" />
+                                                </div>
+                                                <div class="mt-4">
+                                                    <x-input-label for="door_dimensions" value="Warehouse Door Dimensions" />
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <x-text-input id="door_width" name="door_width" type="number" class="mt-1" placeholder="Width"
+                                                            required :value="old('door_width', is_array($warehouse->door_dimensions) ? ($warehouse->door_dimensions['width'] ?? '') : '')" />
+                                                        <x-text-input id="door_height" name="door_height" type="number" class="mt-1" placeholder="Height"
+                                                            required :value="old('door_height', is_array($warehouse->door_dimensions) ? ($warehouse->door_dimensions['height'] ?? '') : '')" />
+                                                    </div>
+                                                    <x-input-error :messages="$errors->get('door_width')" class="mt-2" />
+                                                    <x-input-error :messages="$errors->get('door_height')" class="mt-2" />
+                                                </div>
                                             </div>
-                                            <div class="mt-4">
-                                                <x-input-label for="location" value="Location" />
-                                                <x-text-input id="location" name="location" type="text"
-                                                    class="mt-1 block w-full" :value="old('location', $warehouse->location)" />
-                                                <x-input-error :messages="$errors->get('location')" class="mt-2" />
-                                            </div>
-                                            <div class="mt-6 flex justify-end">
+                                            <div class="border-t border-gray-100 pb-3 px-5 flex justify-end">
                                                 <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
                                                 <x-button variant="primary" class="ms-3">Save Changes</x-button>
                                             </div>
@@ -131,9 +171,14 @@
                     </div>
                     <div class="mt-4">
                         <x-input-label for="door_dimensions" value="Warehouse Door Dimensions" />
-                        <x-text-input id="door_dimensions" name="door_dimensions" type="text" class="mt-1 block w-full"
-                            placeholder="width X height" required :value="old('door_dimensions')" />
-                        <x-input-error :messages="$errors->get('door_dimensions')" class="mt-2" />
+                        <div class="grid grid-cols-2 gap-2">
+                            <x-text-input id="door_width" name="door_width" type="number" class="mt-1" placeholder="Width"
+                                required :value="old('door_width')" />
+                            <x-text-input id="door_height" name="door_height" type="number" class="mt-1" placeholder="Height"
+                                required :value="old('door_height')" />
+                        </div>
+                        <x-input-error :messages="$errors->get('door_width')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('door_height')" class="mt-2" />
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end">

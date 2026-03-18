@@ -18,6 +18,13 @@ class Warehouse extends Model
         'is_active'
     ];
 
+    public $timestamps = true;
+    public $casts = [
+        'is_active' => 'boolean',
+        'diameter' => 'json',
+        'door_dimensions' => 'json',
+    ];
+
     public function branch()
     {
         return $this->belongsTo(Branch::class);

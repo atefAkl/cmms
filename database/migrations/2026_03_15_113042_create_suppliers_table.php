@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('suppliers', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->string('name');
             $table->string('contact_email')->nullable();

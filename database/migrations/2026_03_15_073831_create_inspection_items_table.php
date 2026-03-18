@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inspection_items', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
-            $table->foreignId('inspection_id')->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('inspection_id');
             $table->string('item_name');
             $table->enum('status', ['pass', 'fail', 'na'])->default('pass');
             $table->text('notes')->nullable();

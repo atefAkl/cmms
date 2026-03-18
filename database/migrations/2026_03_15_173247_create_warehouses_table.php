@@ -17,9 +17,8 @@ return new class extends Migration {
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->integer('max_room_count');
             $table->integer('max_path_count');
-            $table->decimal('diameter', 10, 2);
-            $table->string('diameter_unit');
-            $table->string('door_dimensions');
+            $table->json('diameter');
+            $table->json('door_dimensions');
             $table->boolean('is_active')->default(true);
 
             $table->engine('INNODB');

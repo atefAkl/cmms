@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pm_tasks', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->foreignId('pm_schedule_id')->constrained()->cascadeOnDelete();
             $table->date('scheduled_date');

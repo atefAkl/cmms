@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inspections', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
-            $table->foreignId('room_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('compressor_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('room_id');
+            $table->unsignedBigInteger('compressor_id')->nullable();
             $table->foreignId('inspector_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('technician_id')->constrained('users')->cascadeOnDelete();
             $table->date('date');

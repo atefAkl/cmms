@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('maintenance_parts', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->foreignId('maintenance_task_id')->constrained()->cascadeOnDelete();
             $table->foreignId('spare_part_id')->constrained()->cascadeOnDelete();

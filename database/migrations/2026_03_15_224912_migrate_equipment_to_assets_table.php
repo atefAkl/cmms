@@ -81,9 +81,12 @@ return new class extends Migration
         // 3. Drop old columns and tables safely
         Schema::table('maintenance_tasks', function (Blueprint $table) {
             if (Schema::hasColumn('maintenance_tasks', 'compressor_id')) {
+                $table->dropForeign(['compressor_id']);
                 $table->dropColumn('compressor_id');
             }
             if (Schema::hasColumn('maintenance_tasks', 'evaporator_id')) {
+                // evaporator_id may not have a FK constraint
+                try { $table->dropForeign(['evaporator_id']); } catch (\Exception $e) {}
                 $table->dropColumn('evaporator_id');
             }
         });

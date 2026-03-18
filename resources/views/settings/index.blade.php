@@ -75,6 +75,44 @@
                         </svg>
                     </a>
                 </div>
+
+                <!-- Room Layouts -->
+                <div
+                    class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 p-6 hover:shadow-md transition group">
+                    <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="p-3 bg-orange-50 rounded-xl text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition">
+                            <i class="fa fa-th-large text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Layouts</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">Room Layouts</h3>
+                    <p class="text-sm text-gray-500 mb-6">Define templates for physical storage room dimensions.</p>
+                    <a href="{{ route('room-layouts.index') }}"
+                        class="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
+                        Manage Layouts
+                        <i class="fa fa-angle-right ms-3"></i>
+                    </a>
+                </div>
+
+                <!-- Room Layouts -->
+                <div
+                    class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 p-6 hover:shadow-md transition group">
+                    <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="p-3 bg-purple-50 rounded-xl text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition">
+                            <i class="fa fa-building text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Branches</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">Branches</h3>
+                    <p class="text-sm text-gray-500 mb-6">Define and manage branches.</p>
+                    <a href="{{ route('branches.index') }}"
+                        class="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
+                        Manage Branches
+                        <i class="fa fa-angle-right ms-3"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

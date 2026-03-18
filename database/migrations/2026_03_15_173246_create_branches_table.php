@@ -26,12 +26,6 @@ return new class extends Migration {
             $table->string('date_format');
             $table->string('time_format');
             $table->string('date_time_format');
-            $table->string('time_zone');
-            $table->string('currency');
-            $table->string('language');
-            $table->string('date_format');
-            $table->string('time_format');
-            $table->string('date_time_format');
 
             $table->softDeletes();
             $table->engine('InnoDB');

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('temperature_readings', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
             $table->decimal('temperature', 5, 2);

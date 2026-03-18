@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventory_transactions', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->foreignId('spare_part_id')->constrained()->cascadeOnDelete();
             $table->enum('type', ['in', 'out']);

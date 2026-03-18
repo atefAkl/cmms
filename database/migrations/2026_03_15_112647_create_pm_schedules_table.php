@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pm_schedules', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->morphs('equipment'); // Creates equipment_type and equipment_id
             $table->string('description');

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
             $table->string('status')->default('pending'); // pending, ordered, received

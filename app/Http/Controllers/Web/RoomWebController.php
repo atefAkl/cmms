@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use App\Models\RoomLayout;
+use App\Models\Warehouse;
 
 class RoomWebController extends Controller
 {
@@ -16,7 +18,9 @@ class RoomWebController extends Controller
 
     public function create()
     {
-        return view('rooms.create');
+        $warehouses = Warehouse::all();
+        $layouts = RoomLayout::where('is_active', true)->get();
+        return view('rooms.create', compact('warehouses', 'layouts'));
     }
 
     public function store(\App\Http\Requests\StoreRoomRequest $request)

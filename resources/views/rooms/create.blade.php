@@ -19,6 +19,26 @@
                                 :value="old('name')" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
+                        <div>
+                            <x-input-label for="layout_id" :value="__('Room Layout')" />
+                            <select id="layout_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" name="layout_id" required autofocus>
+                                <option value="">Select Layout</option>
+                                @foreach($layouts as $layout)
+                                    <option value="{{ $layout->id }}">{{ $layout->name }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('layout_id')" class="mt-2" />
+                        </div>
+                        <div>
+                            <x-input-label for="warehouse_id" :value="__('Warehouse')" />
+                            <select id="warehouse_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" name="warehouse_id" required autofocus>
+                                <option value="">Select Warehouse</option>
+                                @foreach($warehouses as $warehouse)
+                                    <option value="{{ $warehouse->id }}">{{ $warehouse->name }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('warehouse_id')" class="mt-2" />
+                        </div>
 
                         <!-- Location -->
                         <div>

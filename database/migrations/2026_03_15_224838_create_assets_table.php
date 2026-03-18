@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('assets', function (Blueprint $table) {
+            $table->engine('InnoDB');
             $table->id();
             $table->string('name');
             $table->string('type'); // compressor, evaporator, motor, sensor, fan, heater, control_panel, power_panel
