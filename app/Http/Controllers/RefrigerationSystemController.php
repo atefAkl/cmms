@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InventoryItem;
+use App\Models\ItemCategory;
 use Illuminate\Http\Request;
 
 use App\Models\RefrigerationSystem;
@@ -41,7 +43,11 @@ class RefrigerationSystemController extends Controller
         $refrigerationSystem->load(['room', 'systemDevices.device', 'temperatureReadings' => function($q) {
             $q->latest()->take(10);
         }]);
-        return view('refrigeration-systems.show', compact('refrigerationSystem'));
+
+        $categories = ItemCategory::all();
+        $inventoryItems = InventoryItem::where('is_active', true)->get();
+
+        return view('refrigeration-systems.show', compact('refrigerationSystem', 'categories', 'inventoryItems'));
     }
 
     public function edit(RefrigerationSystem $refrigerationSystem)

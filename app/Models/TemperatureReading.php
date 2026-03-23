@@ -13,6 +13,10 @@ class TemperatureReading extends Model
 
     protected $fillable = ['room_id', 'refrigeration_system_id', 'temperature', 'recorded_by', 'recorded_at'];
 
+    protected $casts = [
+        'recorded_at' => 'datetime',
+    ];
+
     public function room()
     {
         return $this->belongsTo(Room::class);

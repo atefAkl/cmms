@@ -25,9 +25,10 @@ class UpdateRoomRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
-            'target_temperature' => 'required|numeric',
-            'min_temperature' => 'required|numeric|lte:max_temperature',
-            'max_temperature' => 'required|numeric|gte:min_temperature',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'room_layout_id' => 'required|exists:room_layouts,id',
+            'status' => 'required|in:running,stopped,maintenance',
+            'is_active' => 'required|in:0,1',
         ];
     }
 }

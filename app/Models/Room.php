@@ -30,11 +30,16 @@ class Room extends Model
         'room_layout_id' => 'integer',
         'created_by' => 'integer',
         'updated_by' => 'integer',
-        'status' => 'integer',
+        'status' => 'string',
         'is_active' => 'boolean',
     ];
 
     public function refrigerationSystems()
+    {
+        return $this->hasMany(RefrigerationSystem::class);
+    }
+
+    public function coolingSystems()
     {
         return $this->hasMany(RefrigerationSystem::class);
     }
@@ -46,11 +51,23 @@ class Room extends Model
 
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class, 'warehouse_id', 'id');
+        return $this->belongsTo(Warehouse::class , 'warehouse_id', 'id');
     }
 
     public function layout()
     {
-        return $this->belongsTo(RoomLayout::class, 'room_layout_id', 'id');
+        return $this->belongsTo(RoomLayout::class , 'room_layout_id', 'id');
+    }
+
+    public function profileAssignments()
+    {
+        return $this->hasMany(RoomTemperatureProfileAssignment::class);
+    }
+
+    public function activeProfileAssignment()
+    {
+        return $this->hasOne(RoomTemperatureProfileAssignment::class)
+            ->whereNull('end_date')
+            ->latest('start_date');
     }
 }

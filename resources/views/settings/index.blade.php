@@ -113,6 +113,46 @@
                         <i class="fa fa-angle-right ms-3"></i>
                     </a>
                 </div>
+
+                <!-- Temperature Profiles -->
+                <div
+                    class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 p-6 hover:shadow-md transition group">
+                    <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="p-3 bg-purple-50 rounded-xl text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition">
+                            <i class="fa fa-thermometer-half text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Temperature
+                            Profiles</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">Temperature Profiles</h3>
+                    <p class="text-sm text-gray-500 mb-6">Define and manage temperature profiles.</p>
+                    <a href="{{ route('settings.temperature-profiles.index') }}"
+                        class="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
+                        Manage Temperature Profiles
+                        <i class="fa fa-angle-right ms-3"></i>
+                    </a>
+                </div>
+
+                <!-- System Settings -->
+                <div
+                    class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 p-6 hover:shadow-md transition group">
+                    <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="p-3 bg-purple-50 rounded-xl text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition">
+                            <i class="fa fa-cogs text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">System
+                            Settings</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">System Settings</h3>
+                    <p class="text-sm text-gray-500 mb-6">Define and manage system settings.</p>
+                    <a href="{{ route('settings.system-settings.index') }}"
+                        class="inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
+                        Manage System Settings
+                        <i class="fa fa-angle-right ms-3"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

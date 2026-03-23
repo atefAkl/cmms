@@ -5,16 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Asset;
 use App\Models\Room;
 use App\Models\RefrigerationSystem;
-use App\Services\AssetTreeService;
+use App\Services\AssetService;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
 {
-    protected $treeService;
+    protected $assetService;
 
-    public function __construct(AssetTreeService $treeService)
+    public function __construct(AssetService $assetService)
     {
-        $this->treeService = $treeService;
+        $this->assetService = $assetService;
     }
 
     /**
@@ -48,19 +48,26 @@ class AssetController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|string',
+            'item_category_id' => 'nullable|exists:item_categories,id',
+            'inventory_item_id' => 'nullable|exists:inventory_items,id',
             'refrigeration_system_id' => 'required|exists:refrigeration_systems,id',
             'parent_id' => 'nullable|exists:assets,id',
             'status' => 'required|string',
-            'manufacturer' => 'nullable|string',
-            'model' => 'nullable|string',
-            'serial_number' => 'nullable|string',
             'install_date' => 'nullable|date',
-            'notes' => 'nullable|string',
         ]);
 
-        Asset::create($validated);
+        // Default install_date to system creation date if not provided
+        if (empty($validated['install_date'])) {
+            $system = RefrigerationSystem::find($validated['refrigeration_system_id']);
+            $validated['install_date'] = $system->created_at->format('Y-m-d');
+        }
 
-        return redirect()->route('assets.index')->with('success', 'Asset created successfully.');
+        try {
+            $this->assetService->createAsset($validated);
+            return back()->with('success', 'Asset successfully added to system structure.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -90,23 +97,20 @@ class AssetController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|string',
+            'item_category_id' => 'nullable|exists:item_categories,id',
+            'inventory_item_id' => 'nullable|exists:inventory_items,id',
             'refrigeration_system_id' => 'required|exists:refrigeration_systems,id',
             'parent_id' => 'nullable|exists:assets,id',
             'status' => 'required|string',
-            'manufacturer' => 'nullable|string',
-            'model' => 'nullable|string',
-            'serial_number' => 'nullable|string',
             'install_date' => 'nullable|date',
-            'notes' => 'nullable|string',
         ]);
 
-        if ($request->parent_id && $this->treeService->wouldCreateCircularReference($asset->id, (int)$request->parent_id)) {
-            return back()->withErrors(['parent_id' => 'Circular reference detected. Parent cannot be a child of this asset.']);
+        try {
+            $this->assetService->updateAsset($asset, $validated);
+            return back()->with('success', 'Asset hierarchy successfully updated.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $asset->update($validated);
-
-        return redirect()->route('assets.index')->with('success', 'Asset updated successfully.');
     }
 
     /**
@@ -114,7 +118,11 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        $asset->delete();
-        return redirect()->route('assets.index')->with('success', 'Asset deleted successfully.');
+        try {
+            $this->assetService->deleteAsset($asset);
+            return back()->with('success', 'Asset and children deleted cleanly.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

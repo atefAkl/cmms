@@ -1,5 +1,7 @@
 <x-app-layout>
-    <div x-data="{}" x-init="
+
+
+    <div x-data="{ selectedParentId: '' }" x-init="
         @if(session('opened'))
             $nextTick(() => $dispatch('open-modal', '{{ session('opened') }}'));
         @elseif($errors->any())
@@ -10,32 +12,31 @@
             @endif
         @endif
     ">
-
-
-
-
-
-
         <div class="py-2">
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
-    <x-page-header 
-        title="{{ __('Item Categories') }}" 
-        description="Organize your items into parent-child relationships."
-    >
-        <x-button variant="primary" size="sm" @click="$dispatch('open-modal', 'create-category')">
-            + {{__('New')}}
-        </x-button>
-    </x-page-header>
+                <x-page-header title="{{ __('Item Categories') }}"
+                    description="Organize your items into parent-child relationships.">
+                    <x-button variant="primary" size="sm"
+                        @click="selectedParentId = ''; $dispatch('open-modal', 'create-category')">
+                        + {{__('New')}}
+                    </x-button>
+                </x-page-header>
                 <div class="bg-white overflow-hidden shadow sm:rounded-lg border border-gray-100">
 
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Name</th>
-                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Slug</th>
-                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Items Count</th>
-                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">Parent</th>
-                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    Name</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    Slug</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    Items Count</th>
+                                <th class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    Parent</th>
+                                <th
+                                    class="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,14 +54,22 @@
                                             {{ $category->parent->name ?? 'Root' }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-1 text-right space-x-2 text-sm">
-                                        <button @click="$dispatch('open-modal', 'edit-category-{{ $category->id }}')"
-                                            class="text-blue-600 hover:underline">Edit</button>
+                                    <td class="px-4 py-1 text-right">
+                                        <x-button variant="text-blue" size="sm" title="Edit Category"
+                                            @click="$dispatch('open-modal', 'edit-category-{{ $category->id }}')">
+                                            <i class="fa fa-edit"></i>
+                                        </x-button>
+                                        <x-button variant="text-blue" size="sm" title="Add Sub Category"
+                                            @click="selectedParentId = '{{ $category->id }}'; $dispatch('open-modal', 'create-category')">
+                                            <i class="fa fa-plus"></i>
+                                        </x-button>
                                         <form action="{{ route('item-categories.destroy', $category) }}" method="POST"
                                             class="inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline"
-                                                onclick="return confirm('Delete category?')">Delete</button>
+                                            <x-button variant="text-red" size="sm" title="Delete Category"
+                                                onclick="return confirm('{{ __('Delete category?') }}')">
+                                                <i class="fa fa-trash"></i>
+                                            </x-button>
                                         </form>
                                     </td>
                                 </tr>
@@ -92,6 +101,10 @@
                                                             <option value="{{ $cat->id }}" {{ old('parent_id', $category->parent_id) == $cat->id ? 'selected' : '' }}>
                                                                 {{ $cat->parent->name }} - {{ $cat->name }}
                                                             </option>
+                                                        @else
+                                                            <option value="{{ $cat->id }}" {{ old('parent_id', $category->parent_id) == $cat->id ? 'selected' : '' }}>
+                                                                {{ $cat->name }}
+                                                            </option>
                                                         @endif
                                                     @endforeach
                                                 </select>
@@ -112,7 +125,7 @@
                         </tbody>
                     </table>
                     @if($allCategories->hasPages())
-                        <div class="mt-4">
+                        <div class="mt-4 px-5 pb-3">
                             {{ $allCategories->links() }}
                         </div>
                     @endif
@@ -139,14 +152,14 @@
                     <x-input-error :messages="$errors->get('description')" class="mt-2" />
                 </div>
                 <div class="mt-4">
-                    <select name="parent_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                        <option value="">Select Parent Category</option>
-                        @foreach($categories as $category)
-                            @if ($category->parent)
-                                <option value="{{ $category->id }}" {{ old('parent_id', $category->parent_id) == $category->id ? 'selected' : '' }}>
-                                    {{ $category->parent->name }} - {{ $category->name }}
-                                </option>
-                            @endif
+                    <x-input-label for="parent_id" value="Parent Category" />
+                    <select name="parent_id" x-model="selectedParentId"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="">Select Parent Category (Root)</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">
+                                {{ $cat->parent ? $cat->parent->name . ' - ' : '' }}{{ $cat->name }}
+                            </option>
                         @endforeach
                     </select>
                     <x-input-error :messages="$errors->get('parent_id')" class="mt-2" />

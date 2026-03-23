@@ -7,7 +7,7 @@
     'actionIcon' => 'fa fa-plus'
 ])
 
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-2 bg-white p-4 rounded-md shadow">
     <div class="flex items-center gap-4">
         @if($backRoute)
             <a href="{{ $backRoute }}"
@@ -23,6 +23,7 @@
         </div>
     </div>
 
+    <!-- Render action/s -->
     @if($actionUrl)
         <a href="{{ $actionUrl }}"
             class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-indigo-600/20">

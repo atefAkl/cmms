@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ItemCategory extends Model
 {
-    protected $fillable = ['name', 'slug', 'level', 'parent_id', 'description'];
+    protected $fillable = ['name', 'slug', 'level', 'parent_id', 'description', 'is_active'];
 
     public function items()
     {

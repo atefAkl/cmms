@@ -7,12 +7,16 @@ use App\Models\Room;
 use Illuminate\Http\Request;
 use App\Models\RoomLayout;
 use App\Models\Warehouse;
+use App\Http\Requests\StoreRoomRequest;
+use Illuminate\Support\Str;
+use App\Http\Requests\UpdateRoomRequest;
+use App\Models\RefrigerationSystem;
 
 class RoomWebController extends Controller
 {
     public function index()
     {
-        $rooms = Room::with('refrigerationSystems.assets')->paginate(10);
+        $rooms = Room::with('activeProfileAssignment', 'coolingSystems.assets')->paginate(10);
         return view('rooms.index', compact('rooms'));
     }
 
@@ -23,18 +27,33 @@ class RoomWebController extends Controller
         return view('rooms.create', compact('warehouses', 'layouts'));
     }
 
-    public function store(\App\Http\Requests\StoreRoomRequest $request)
+    public function store(StoreRoomRequest $request)
     {
-        Room::create($request->validated());
-        return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
+        $validated = $request->validated();
+        $data = $validated + [
+            'slug' => Str::slug($request->name),
+            'created_by' => auth()->user()->id,
+            'updated_by' => auth()->user()->id,
+            'status' => 'stopped',
+            'is_active' => 1
+        ];
+        try {
+            Room::create($data);
+            return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
+        }
+        catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to create room: ' . $e->getMessage());
+        }
     }
 
     public function edit(Room $room)
     {
-        return view('rooms.edit', compact('room'));
+        $warehouses = Warehouse::all();
+        $layouts = RoomLayout::where('is_active', true)->get();
+        return view('rooms.edit', compact('room', 'warehouses', 'layouts'));
     }
 
-    public function update(\App\Http\Requests\UpdateRoomRequest $request, Room $room)
+    public function update(UpdateRoomRequest $request, Room $room)
     {
         $room->update($request->validated());
         return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');
@@ -45,9 +64,16 @@ class RoomWebController extends Controller
      */
     public function show(Room $room)
     {
-        //
-        $warehouses = $room->warehouses()->paginate(10);
-        return view('rooms.show', compact('room', 'warehouses'));
+        $room->load('layout');
+
+        $room->refrigerationSystems()->with('assets')->get();
+        $room->coolingSystems()->with('assets')->get();
+        $coolingSystems = RefrigerationSystem::all();
+        $profiles = \App\Models\TemperatureProfile::orderBy('name')->get();
+        $timeline = app(\App\Services\RoomTemperatureAssignmentService::class)->getTimeline($room);
+        $activeProfile = $room->activeProfileAssignment;
+
+        return view('rooms.show', compact('room', 'profiles', 'timeline', 'activeProfile', 'coolingSystems'));
     }
 
     public function destroy(Room $room)

@@ -15,6 +15,8 @@ class Asset extends Model
         'parent_id',
         'refrigeration_system_id',
         'system_device_id',
+        'item_category_id',
+        'inventory_item_id',
         'status',
         'manufacturer',
         'model',
@@ -40,6 +42,16 @@ class Asset extends Model
     public function refrigerationSystem()
     {
         return $this->belongsTo(RefrigerationSystem::class);
+    }
+
+    public function itemCategory()
+    {
+        return $this->belongsTo(ItemCategory::class, 'item_category_id');
+    }
+
+    public function inventoryItem()
+    {
+        return $this->belongsTo(InventoryItem::class);
     }
 
     public function systemDevice()

@@ -17,8 +17,8 @@ return new class extends Migration {
             $table->string('slug')->unique();
             $table->enum('status', ['running', 'stopped', 'maintenance'])->default('running');
             $table->boolean('is_active')->default(true);
-            $table->unsignedBigInteger('warehouse_id')->nullable();
-            $table->unsignedBigInteger('layout_id')->nullable();
+            $table->foreignId('warehouse_id')->nullable()->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('room_layout_id')->nullable()->constrained('room_layouts')->cascadeOnDelete();
 
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete();

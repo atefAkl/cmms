@@ -23,11 +23,18 @@ class StoreRoomRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'target_temperature' => 'required|numeric',
-            'min_temperature' => 'required|numeric|lte:max_temperature',
-            'max_temperature' => 'required|numeric|gte:min_temperature',
+            'name' => 'nullable|string|max:255',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'room_layout_id' => 'nullable|exists:room_layouts,id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Room name is required.',
+            'warehouse_id.required' => 'Warehouse is required.',
+            'room_layout_id.required' => 'Room layout is required.',
         ];
     }
 }

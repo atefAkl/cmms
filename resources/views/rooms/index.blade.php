@@ -1,22 +1,31 @@
 <x-app-layout>
     <div class="pb-6">
         <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
-            <x-page-header title="Cold Storage Rooms" description="Monitor and manage all cold storage facilities."
-                :actionUrl="route('rooms.create')" :actionLabel="__('New')" />
+            <x-page-header title="Cold Storage Rooms" description="Monitor and manage all cold storage facilities.">
+                <x-primary-button href="{{ route('rooms.create') }}" title="Edit Room Specifications">
+                    <i class="fa fa-plus me-3"></i>
+                </x-primary-button>
+            </x-page-header>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100">
                 <div class="p-0 text-gray-900 overflow-x-auto">
+
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">Name</th>
-                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">Target Temp
+                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">Name
                                 </th>
-                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">Min / Max
+                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">Target
+                                    Temp/Actual
                                 </th>
-                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">Equipment
+                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">Min /
+                                    Max
                                 </th>
-                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400 text-right">
+                                <th class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400">
+                                    Equipment
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-400 text-right">
                                     Actions</th>
                             </tr>
                         </thead>
@@ -24,31 +33,38 @@
                             @forelse($rooms as $room)
                                 <tr class="hover:bg-gray-50/50 transition">
                                     <td class="px-4 py-1">
+                                        {{-- Name of the room --}}
                                         <div class="font-bold text-gray-900">{{ $room->name }}</div>
                                         <div class="text-[10px] text-gray-400 mt-0.5">ID: #{{ $room->id }}</div>
                                     </td>
                                     <td class="px-4 py-1">
+                                        {{-- Target temperature of the room --}}
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100 italic">
-                                            {{ number_format($room->target_temperature, 2) }}°C
+                                            {{ number_format($room->activeProfileAssignment?->profile->target_temp, 2) }}°C
+                                        </span>/
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100 italic">
+                                            {{ number_format($room->activeProfileAssignment?->profile->target_temp, 2) }}°C
                                         </span>
                                     </td>
                                     <td class="px-4 py-1">
                                         <span
-                                            class="text-xs font-medium text-gray-500">{{ number_format($room->min_temperature, 2) }}°C</span>
+                                            class="text-xs font-medium text-gray-500">{{ number_format($room->activeProfileAssignment?->profile->min_temp, 2) }}°C</span>
                                         <span class="mx-1 text-gray-300">/</span>
                                         <span
-                                            class="text-xs font-medium text-gray-500">{{ number_format($room->max_temperature, 2) }}°C</span>
+                                            class="text-xs font-medium text-gray-500">{{ number_format($room->activeProfileAssignment?->profile->max_temp, 2) }}°C</span>
                                     </td>
                                     <td class="px-4 py-1">
                                         @php
-                                            $totalAssets = $room->refrigerationSystems->sum(fn($system) => $system->assets->count());
-                                            $topLevelAssets = $room->refrigerationSystems->sum(fn($system) => $system->assets->whereNull('parent_id')->count());
+                                            $totalAssets = $room->coolingSystems->sum(fn($system) => $system->assets->count());
+                                            $topLevelAssets = $room->coolingSystems->sum(fn($system) => $system->assets->whereNull('parent_id')->count());
                                         @endphp
                                         <span class="text-xs font-semibold text-gray-600">
-                                            {{ $room->refrigerationSystems->count() }} Systems / {{ $totalAssets }} Total Assets
+                                            {{ $room->coolingSystems->count() }} Systems / {{ $totalAssets }} Total Assets
                                         </span>
-                                        <div class="text-[10px] text-gray-400 italic">({{ $topLevelAssets }} Main Units)</div>
+                                        <div class="text-[10px] text-gray-400 italic">({{ $topLevelAssets }} Main Units)
+                                        </div>
                                     </td>
                                     <td class="px-4 py-1 text-right">
                                         <div class="flex justify-end gap-2">
