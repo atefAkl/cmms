@@ -67,14 +67,17 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-5 text-right rounded-r-2xl">
-                                            <div class="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <a href="{{ route('inventory-items.edit', $item) }}" class="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition shadow-sm">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                                            <div class="flex justify-end space-x-2 ">
+                                                <a href="{{ route('inventory-items.show', $item) }}" class="p-2 text-indigo-600 shadow-sm">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                                <a href="{{ route('inventory-items.edit', $item) }}" class="p-2 text-indigo-600 shadow-sm">
+                                                    <i class="fa fa-edit"></i>
                                                 </a>
                                                 <form action="{{ route('inventory-items.destroy', $item) }}" method="POST" onsubmit="return confirm('Archive this item?');">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition shadow-sm">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                                                    <button type="submit" class="p-2 text-red-600 shadow-sm">
+                                                        <i class="fa fa-trash"></i>
                                                     </button>
                                                 </form>
                                             </div>

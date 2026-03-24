@@ -37,9 +37,13 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('procurement', \App\Http\Controllers\Web\ProcurementWebController::class);
     Route::post('procurement/{procurement}/add-item', [\App\Http\Controllers\Web\ProcurementWebController::class , 'addItem'])->name('procurement.addItem');
+    Route::patch('procurement/{procurement}/items/{itemId}', [\App\Http\Controllers\Web\ProcurementWebController::class , 'updateItem'])->name('procurement.updateItem');
+    Route::delete('procurement/{procurement}/items/{itemId}', [\App\Http\Controllers\Web\ProcurementWebController::class , 'deleteItem'])->name('procurement.deleteItem');
+    Route::get('procurement/{procurement}/print', [\App\Http\Controllers\Web\ProcurementWebController::class , 'print'])->name('procurement.print');
     Route::post('procurement/{procurement}/approve', [\App\Http\Controllers\Web\ProcurementWebController::class , 'approve'])->name('procurement.approve');
     Route::post('procurement/{procurement}/reject', [\App\Http\Controllers\Web\ProcurementWebController::class , 'reject'])->name('procurement.reject');
     Route::post('procurement/{procurement}/receive', [\App\Http\Controllers\Web\ProcurementWebController::class , 'markAsReceived'])->name('procurement.receive');
+    Route::post('procurement/{procurement}/enable-editing', [\App\Http\Controllers\Web\ProcurementWebController::class , 'enableEditing'])->name('procurement.enableEditing');
 
     // Redirect legacy inventory to new generic items
     Route::get('/inventory', function () {
@@ -65,6 +69,16 @@ Route::middleware('auth')->group(function () {
 
         Route::post('refrigeration-systems/{refrigeration_system}/initialize', [\App\Http\Controllers\SystemInitializationController::class, 'store'])->name('systems.initialize');
         Route::resource('refrigeration-systems', \App\Http\Controllers\RefrigerationSystemController::class);
+
+        // System Components (Interactive AJAX Routes)
+        Route::group(['prefix' => 'ajax'], function () {
+            Route::get('systems/{id}/components', [\App\Http\Controllers\SystemComponentController::class , 'index']);
+            Route::post('systems/{id}/components', [\App\Http\Controllers\SystemComponentController::class , 'store']);
+            Route::put('components/{id}', [\App\Http\Controllers\SystemComponentController::class , 'update']);
+            Route::post('components/{id}/disposition', [\App\Http\Controllers\SystemComponentController::class , 'disposition']);
+            Route::delete('components/{id}', [\App\Http\Controllers\SystemComponentController::class , 'destroy']);
+        });
+
         Route::resource('assets', \App\Http\Controllers\AssetController::class);
         Route::resource('system-devices', \App\Http\Controllers\Web\SystemDeviceWebController::class);
         Route::resource('devices', \App\Http\Controllers\Web\DeviceWebController::class);

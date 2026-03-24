@@ -61,7 +61,18 @@
                                         </td>
                                         <td class="px-4 py-1 text-center font-black text-gray-900">{{ number_format($order->total_cost, 2) }} <small class="text-[10px] text-gray-400">SAR</small></td>
                                         <td class="px-4 py-1 text-right">
-                                            <a href="{{ route('procurement.show', $order) }}" class="text-indigo-600 hover:text-indigo-900 font-bold text-sm">View</a>
+                                            <div class="flex justify-end gap-3">
+                                                <a href="{{ route('procurement.show', $order) }}" class="text-indigo-600 hover:text-indigo-900 font-bold text-xs uppercase tracking-widest flex items-center">
+                                                    <i class="fa fa-eye mr-1 rtl:ml-1 rtl:mr-0"></i>
+                                                    {{ __('عرض') }}
+                                                </a>
+                                                @if($order->status !== 'received')
+                                                <a href="{{ route('procurement.show', $order) }}?edit=1" class="text-emerald-600 hover:text-emerald-900 font-bold text-xs uppercase tracking-widest flex items-center">
+                                                    <i class="fa fa-edit mr-1 rtl:ml-1 rtl:mr-0"></i>
+                                                    {{ __('تعديل') }}
+                                                </a>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -92,9 +103,18 @@
                                         <p class="font-bold uppercase tracking-tighter text-[10px] text-gray-400 mb-1">Date: {{ $order->transaction_date }}</p>
                                         <p class="font-black text-gray-900 text-lg">{{ number_format($order->total_cost, 2) }} <small class="text-xs font-normal text-gray-400">SAR</small></p>
                                     </div>
-                                    <a href="{{ route('procurement.show', $order) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-md">
-                                        Details
-                                    </a>
+                                    <div class="flex gap-2">
+                                        <a href="{{ route('procurement.show', $order) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-md flex items-center">
+                                            <i class="fa fa-eye mr-2 rtl:ml-2 rtl:mr-0"></i>
+                                            Details
+                                        </a>
+                                        @if($order->status !== 'received')
+                                        <a href="{{ route('procurement.show', $order) }}?edit=1" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-md flex items-center">
+                                            <i class="fa fa-edit mr-2 rtl:ml-2 rtl:mr-0"></i>
+                                            Edit
+                                        </a>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         @endforeach

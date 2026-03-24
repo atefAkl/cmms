@@ -64,7 +64,7 @@
                     </div>
                     
                     <!-- Hierarchical Asset Tree -->
-                    <div x-data="{ treeExpanded: true }"
+                    {{-- <div x-data="{ treeExpanded: true }"
                         class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100 relative min-h-[400px]">
 
                         <div
@@ -113,7 +113,7 @@
                                 </div>
                             @endforelse
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Hierarchical Component Tree (System Devices) -->
                     <div x-data="{ treeExpanded: true }"
@@ -378,31 +378,35 @@
                             class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto transition">Integrate
                             Node</button>
                         <button type="button" @click="open = false"
-                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition">Abort</button>
+                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition">Cancel</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- System Component Add/Edit Modal (AlpineJS & API) -->
+    <!-- System Component Add/Edit Modal (AlpineJS & AJAX) -->
     <div x-data="{ 
             open: false, 
             isEdit: false,
             allInventoryItems: {{ isset($inventoryItems) ? $inventoryItems->toJson() : '[]' }},
+            allWarehouses: {{ isset($warehouses) ? $warehouses->toJson() : '[]' }},
+            allSystems: {{ isset($allSystems) ? $allSystems->toJson() : '[]' }},
             formData: {
                 component_id: null,
                 name: '',
+                serial_number: '',
                 component_type: '',
                 product_id: '',
+                warehouse_id: '',
                 status: 'unknown',
                 install_type: 'init',
                 parent_id: '',
-                refrigeration_system_id: '',
-                install_date: '',
-                serial: '',
+                refrigeration_system_id: '{{ $refrigerationSystem->id }}',
+                install_date: '{{ now()->toDateString() }}',
                 position: ''
             },
+            errors: {},
             onProductSelect() {
                 const selectedItem = this.allInventoryItems.find(item => item.id == this.formData.product_id);
                 if (selectedItem && !this.formData.name) {
@@ -410,30 +414,30 @@
                 }
             },
             async submitComponent() {
+                this.errors = {};
                 try {
-                    let url = '/api/systems/' + this.formData.refrigeration_system_id + '/components';
+                    let url = '/ajax/systems/' + this.formData.refrigeration_system_id + '/components';
                     let method = 'POST';
                     if (this.isEdit) {
-                        url = '/api/components/' + this.formData.component_id;
+                        url = '/ajax/components/' + this.formData.component_id;
                         method = 'PUT';
                     }
                     
                     const payload = {
                         parent_id: this.formData.parent_id || null,
                         product_id: this.formData.product_id || null,
+                        warehouse_id: this.formData.warehouse_id || null,
                         name: this.formData.name,
+                        serial_number: this.formData.serial_number,
                         component_type: this.formData.component_type,
                         install_type: this.formData.install_type,
                         installed_at: this.formData.install_date,
                         status: this.formData.status,
                         metadata: {
-                            serial: this.formData.serial,
                             position: this.formData.position
                         }
                     };
 
-                    // For web routes API we might need CSRF token if not Sanctum SPA. 
-                    // Let's grab it from meta tag if available.
                     let token = document.head.querySelector('meta[name=csrf-token]')?.content;
 
                     const res = await fetch(url, {
@@ -448,11 +452,14 @@
 
                     if (!res.ok) {
                         const errorData = await res.json();
+                        if (res.status === 422 && errorData.errors) {
+                            this.errors = errorData.errors;
+                            return;
+                        }
                         alert('Error: ' + (errorData.message || errorData.error || 'Failed to save component'));
                         return;
                     }
 
-                    // Success => simple reload to refresh tree
                     window.location.reload();
                 } catch (e) {
                     alert('Request failed: ' + e.message);
@@ -463,15 +470,16 @@
             isEdit = !!$event.detail.component_id;
             formData.component_id = $event.detail.component_id || null;
             formData.name = $event.detail.name || '';
+            formData.serial_number = $event.detail.serial_number || '';
             formData.component_type = $event.detail.component_type || '';
             formData.product_id = $event.detail.product_id || '';
+            formData.warehouse_id = $event.detail.warehouse_id || '';
             formData.status = $event.detail.status || 'unknown';
             formData.install_type = $event.detail.install_type || 'init';
             formData.parent_id = $event.detail.parent_id || '';
-            formData.refrigeration_system_id = $event.detail.system_id || '';
-            formData.install_date = $event.detail.install_date || new Date().toISOString().split('T')[0];
-            formData.serial = $event.detail.serial || '';
+            formData.install_date = $event.detail.install_date || '{{ now()->toDateString() }}';
             formData.position = $event.detail.position || '';
+            errors = {};
          " style="display: none;" class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title-component"
         role="dialog" aria-modal="true">
 
@@ -494,22 +502,46 @@
                                     id="modal-title-component" x-text="isEdit ? 'تعديل بيانات المكون' : 'إضافة مكون للنظام'"></h3>
                                 <div class="mt-4 space-y-4 text-left">
                                     
-                                    <div>
-                                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">المنتج المرتبط (Inventory)</label>
-                                        <select x-model="formData.product_id" @change="onProductSelect()"
-                                            class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
-                                            <option value="">-- اختياري: اربط بمنتج --</option>
-                                            <template x-for="item in allInventoryItems" :key="item.id">
-                                                <option :value="item.id" x-text="item.name"></option>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">المنتج المرتبط (Inventory)</label>
+                                            <select x-model="formData.product_id" @change="onProductSelect()"
+                                                :class="errors.product_id ? 'ring-red-500' : 'ring-slate-300'"
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                                <option value="">-- اختياري: اربط بمنتج --</option>
+                                                <template x-for="item in allInventoryItems" :key="item.id">
+                                                    <option :value="item.id" x-text="item.name"></option>
+                                                </template>
+                                            </select>
+                                            <template x-if="errors.product_id">
+                                                <p class="mt-1 text-[10px] text-red-600 font-bold" x-text="errors.product_id[0]"></p>
                                             </template>
-                                        </select>
+                                        </div>
+                                        <div x-show="formData.product_id && !isEdit">
+                                            <label class="block text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">اصرف من مستودع *</label>
+                                            <select x-model="formData.warehouse_id" :required="formData.product_id && !isEdit"
+                                                :class="errors.warehouse_id ? 'ring-red-500' : 'ring-slate-300'"
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                                <option value="">-- اختر المستودع --</option>
+                                                <template x-for="wh in allWarehouses" :key="wh.id">
+                                                    <option :value="wh.id" x-text="wh.name"></option>
+                                                </template>
+                                            </select>
+                                            <template x-if="errors.warehouse_id">
+                                                <p class="mt-1 text-[10px] text-red-600 font-bold" x-text="errors.warehouse_id[0]"></p>
+                                            </template>
+                                        </div>
                                     </div>
 
                                     <div>
-                                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">اسم المكون *</label>
+                                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">اسم المكون (المسمى الوظيفي) *</label>
                                         <input type="text" x-model="formData.name" required
-                                            class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold"
+                                            :class="errors.name ? 'ring-red-500' : 'ring-slate-300'"
+                                            class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold"
                                             placeholder="مثال: ضاغط رقم 1">
+                                        <template x-if="errors.name">
+                                            <p class="mt-1 text-[10px] text-red-600 font-bold" x-text="errors.name[0]"></p>
+                                        </template>
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-4">

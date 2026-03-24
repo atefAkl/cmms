@@ -44,10 +44,15 @@ class RefrigerationSystemController extends Controller
             $q->latest()->take(10);
         }]);
 
-        $categories = ItemCategory::all();
-        $inventoryItems = InventoryItem::where('is_active', true)->get();
+        $categories = \App\Models\ItemCategory::all();
+        $inventoryItems = \App\Models\InventoryItem::where('is_active', true)
+            ->where('stock', '>', 0) // Only products with available stock
+            ->get();
+            
+        $warehouses = \App\Models\Warehouse::all();
+        $allSystems = RefrigerationSystem::where('id', '<>', $refrigerationSystem->id)->get();
 
-        return view('refrigeration-systems.show', compact('refrigerationSystem', 'categories', 'inventoryItems'));
+        return view('refrigeration-systems.show', compact('refrigerationSystem', 'categories', 'inventoryItems', 'warehouses', 'allSystems'));
     }
 
     public function edit(RefrigerationSystem $refrigerationSystem)

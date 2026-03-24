@@ -17,16 +17,24 @@ class WarehouseStockWebController extends Controller
         $warehouses = Warehouse::all();
 
         $query = InventoryTransaction::select(
-            'inventory_item_id',
-            'warehouse_id',
-            DB::raw('SUM(CASE WHEN type IN ("in", "adjustment_up", "return") THEN quantity ELSE -quantity END) as current_stock')
+            'inventory_transactions.inventory_item_id',
+            'inventory_transactions.warehouse_id',
+            DB::raw('SUM(CASE WHEN inventory_transactions.type IN ("in", "adjustment_up", "return") THEN inventory_transactions.quantity ELSE -inventory_transactions.quantity END) as current_stock')
         )
+        ->leftJoin('purchase_orders', function($join) {
+            $join->on('inventory_transactions.reference_id', '=', 'purchase_orders.id')
+                 ->where('inventory_transactions.reference_type', '=', \App\Models\PurchaseOrder::class);
+        })
+        ->where(function($q) {
+            $q->whereNull('purchase_orders.id')
+              ->orWhere('purchase_orders.status', '!=', 'editing');
+        })
         ->with(['item.category', 'warehouse'])
-        ->groupBy('inventory_item_id', 'warehouse_id')
-        ->havingRaw('SUM(CASE WHEN type IN ("in", "adjustment_up", "return") THEN quantity ELSE -quantity END) != 0');
+        ->groupBy('inventory_transactions.inventory_item_id', 'inventory_transactions.warehouse_id')
+        ->havingRaw('SUM(CASE WHEN inventory_transactions.type IN ("in", "adjustment_up", "return") THEN inventory_transactions.quantity ELSE -inventory_transactions.quantity END) != 0');
 
         if ($warehouseId) {
-            $query->where('warehouse_id', $warehouseId);
+            $query->where('inventory_transactions.warehouse_id', $warehouseId);
         }
 
         $stocks = $query->paginate(20);

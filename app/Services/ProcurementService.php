@@ -38,7 +38,8 @@ class ProcurementService
                 'purchase_order_id' => $order->id,
                 'inventory_item_id' => $itemData['inventory_item_id'],
                 'quantity' => $itemData['quantity'],
-                'unit_cost' => $itemData['unit_cost']
+                'unit_cost' => $itemData['unit_cost'],
+                'serial_number' => $itemData['serial_number'] ?? null,
             ]);
 
             // Update order total
@@ -50,6 +51,58 @@ class ProcurementService
             }
 
             return $item;
+        });
+    }
+
+    /**
+     * Update an existing item in a purchase order and adjust stock if received.
+     */
+    public function updateItemInOrder(PurchaseOrder $order, PurchaseOrderItem $item, array $itemData)
+    {
+        return DB::transaction(function () use ($order, $item, $itemData) {
+            $oldQuantity = $item->quantity;
+            $oldTotal = $item->quantity * $item->unit_cost;
+            
+            $item->update($itemData);
+            
+            $newQuantity = $item->quantity;
+            $newTotal = $item->quantity * $item->unit_cost;
+            $diffTotal = $newTotal - $oldTotal;
+
+            // Update order total
+            $order->increment('total_cost', $diffTotal);
+
+            // If order is received, adjust stock by the difference
+            if (in_array($order->status, ['ordered', 'received'])) {
+                $diffQty = $newQuantity - $oldQuantity;
+                if ($diffQty != 0) {
+                    $this->incrementStock($order->warehouse_id, $item->inventory_item_id, $diffQty, $order);
+                }
+            }
+
+            return $item;
+        });
+    }
+
+    /**
+     * Remove an item from a purchase order and reverse stock if received.
+     */
+    public function removeItemFromOrder(PurchaseOrder $order, PurchaseOrderItem $item)
+    {
+        return DB::transaction(function () use ($order, $item) {
+            $qty = $item->quantity;
+            $total = $item->quantity * $item->unit_cost;
+
+            // If order is received, reverse stock
+            if (in_array($order->status, ['ordered', 'received'])) {
+                $this->incrementStock($order->warehouse_id, $item->inventory_item_id, -$qty, $order);
+            }
+
+            // Update order total
+            $order->decrement('total_cost', $total);
+
+            $item->delete();
+            return true;
         });
     }
 
@@ -68,9 +121,39 @@ class ProcurementService
             $order->update(['status' => 'received']);
 
             foreach ($order->items as $item) {
+                $item->update(['is_under_edit' => false]);
                 $this->incrementStock($order->warehouse_id, $item->inventory_item_id, $item->quantity, $order);
             }
 
+            return $order;
+        });
+    }
+
+    /**
+     * Enable editing mode for a received purchase order.
+     */
+    public function enableEditing(PurchaseOrder $order)
+    {
+        return DB::transaction(function () use ($order) {
+            // 1. Subtract current contents from stock
+            foreach ($order->items as $item) {
+                $inventoryItem = InventoryItem::find($item->inventory_item_id, ['*']);
+                if ($inventoryItem) {
+                    $inventoryItem->decrement('stock', $item->quantity);
+                }
+            }
+
+            // 2. Delete all inventory transactions for this PO
+            InventoryTransaction::where('reference_type', '=', PurchaseOrder::class, 'and')
+                ->where('reference_id', '=', $order->id, 'and')
+                ->delete();
+
+            // 3. Mark all items as under edit
+            $order->items()->update(['is_under_edit' => true]);
+
+            // 4. Update status to editing
+            $order->update(['status' => 'editing']);
+            
             return $order;
         });
     }

@@ -22,11 +22,16 @@
                     <span class="text-[9px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded">
                         {{ $component->component_type ?? 'Component' }}
                     </span>
+                    @if($component->serial_number)
+                        <span class="text-[9px] font-black text-slate-500 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+                            S/N: {{ $component->serial_number }}
+                        </span>
+                    @endif
                     <span class="text-[9px] font-black uppercase tracking-widest {{ $component->status === 'working' ? 'text-green-700 bg-green-100' : ($component->status === 'stopped' ? 'text-rose-700 bg-rose-100' : 'text-gray-500 bg-gray-100') }} px-2.5 py-1 rounded">
                         {{ strtoupper($component->status ?? 'UNKNOWN') }}
                     </span>
                     @if($component->product)
-                        <span class="text-[9px] font-bold text-gray-500"><i class="fa fa-box mr-1"></i>{{ $component->product->name }}</span>
+                        <span class="text-[9px] font-bold text-gray-500"><i class="fa fa-box mr-1 text-emerald-400"></i>{{ $component->product->name }}</span>
                     @endif
                 </div>
             </div>
@@ -43,19 +48,27 @@
             <button @click="$dispatch('open-component-modal', { 
                 component_id: {{ $component->id }}, 
                 name: '{{ addslashes($component->name) }}', 
+                serial_number: '{{ $component->serial_number }}',
                 component_type: '{{ $component->component_type }}', 
                 product_id: '{{ $component->product_id }}',
+                warehouse_id: '{{ $component->warehouse_id }}',
                 status: '{{ $component->status }}', 
                 install_type: '{{ $component->install_type }}', 
                 install_date: '{{ $component->installed ? \Carbon\Carbon::parse($component->installed)->format('Y-m-d') : '' }}', 
                 parent_id: {{ $component->parent_id ?? 'null' }}, 
                 system_id: {{ $component->refrigeration_system_id }},
-                serial: '{{ $component->metadata['serial'] ?? '' }}',
                 position: '{{ $component->metadata['position'] ?? '' }}'
             })" class="text-xs font-bold text-gray-400 hover:text-gray-900 px-2 py-1 rounded hover:bg-gray-100 transition" title="Edit Component">
                 <i class="fa fa-edit"></i>
             </button>
-            <button @click="deleteComponent({{ $component->id }})" class="text-xs font-bold text-rose-400 hover:text-rose-700 px-2 py-1 rounded hover:bg-rose-50 transition" title="Delete Component">
+            <button @click="$dispatch('open-disposition-modal', { 
+                component_id: {{ $component->id }}, 
+                name: '{{ addslashes($component->name) }}',
+                product_name: '{{ $component->product ? addslashes($component->product->name) : 'No item' }}'
+            })" class="text-xs font-bold text-indigo-400 hover:text-indigo-700 px-2 py-1 rounded hover:bg-indigo-50 transition" title="Remove/Transfer Component">
+                <i class="fa fa-exchange-alt"></i>
+            </button>
+            <button @click="deleteComponent({{ $component->id }})" class="text-xs font-bold text-rose-400 hover:text-rose-700 px-2 py-1 rounded hover:bg-rose-50 transition" title="Force Delete (Admin Only)">
                 <i class="fa fa-trash"></i>
             </button>
         </div>

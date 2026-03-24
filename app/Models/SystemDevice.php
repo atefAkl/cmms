@@ -9,8 +9,8 @@ class SystemDevice extends Model
     use \Illuminate\Database\Eloquent\SoftDeletes;
 
     protected $fillable = [
-        'refrigeration_system_id', 'name', 'device_id', 'installed',
-        'product_id', 'parent_id', 'level', 'component_type', 'install_type',
+        'refrigeration_system_id', 'name', 'serial_number', 'device_id', 'installed',
+        'product_id', 'warehouse_id', 'parent_id', 'level', 'component_type', 'install_type',
         'status', 'last_status_ts', 'metadata', 'created_by', 'updated_by'
     ];
 

@@ -10,7 +10,11 @@ class PurchaseOrderItem extends Model
     /** @use HasFactory<\Database\Factories\PurchaseOrderItemFactory> */
     use HasFactory;
 
-    protected $fillable = ['purchase_order_id', 'inventory_item_id', 'quantity', 'unit_cost'];
+    protected $fillable = ['purchase_order_id', 'inventory_item_id', 'quantity', 'unit_cost', 'serial_number', 'is_under_edit'];
+
+    protected $casts = [
+        'is_under_edit' => 'boolean',
+    ];
 
     public function purchaseOrder()
     {
