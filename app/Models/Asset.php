@@ -68,4 +68,14 @@ class Asset extends Model
     {
         return $this->hasMany(Inspection::class);
     }
+
+    public function components()
+    {
+        return $this->hasMany(AssetComponent::class);
+    }
+
+    public function workRegistries()
+    {
+        return $this->morphMany(ItemWorkRegistry::class, 'item');
+    }
 }

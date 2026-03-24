@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\BranchWebController;
 use App\Http\Controllers\Web\CoolingSystemAssignmentController;
 use App\Http\Controllers\Web\RoomProfileAssignmentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\ItemWorkRegistryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,6 +31,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('item-categories', \App\Http\Controllers\Web\ItemCategoryWebController::class);
     Route::resource('warehouses', \App\Http\Controllers\Web\WarehouseWebController::class);
     Route::resource('inventory-items', \App\Http\Controllers\Web\InventoryItemWebController::class);
+    Route::resource('purchasing', \App\Http\Controllers\Web\PurchaseOrderWebController::class);
+    Route::post('purchasing/{purchaseOrder}/approve', [\App\Http\Controllers\Web\PurchaseOrderWebController::class, 'approve'])->name('purchasing.approve');
+    Route::get('warehouse-stocks', [\App\Http\Controllers\Web\WarehouseStockWebController::class, 'index'])->name('warehouse-stocks.index');
+    
     Route::resource('procurement', \App\Http\Controllers\Web\ProcurementWebController::class);
     Route::post('procurement/{procurement}/add-item', [\App\Http\Controllers\Web\ProcurementWebController::class , 'addItem'])->name('procurement.addItem');
     Route::post('procurement/{procurement}/approve', [\App\Http\Controllers\Web\ProcurementWebController::class , 'approve'])->name('procurement.approve');
@@ -51,6 +56,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/monitoring/temperature', [\App\Http\Controllers\Web\MonitoringWebController::class, 'temperature'])->name('monitoring.temperature');
         Route::post('/monitoring/temperature', [\App\Http\Controllers\Web\MonitoringWebController::class, 'storeTemperature'])->name('monitoring.temperature.store');
         Route::get('/monitoring/humidity', [\App\Http\Controllers\Web\MonitoringWebController::class, 'humidity'])->name('monitoring.humidity');
+
+        Route::prefix('monitoring')->as('monitoring.')->group(function () {
+            Route::post('item-work-registries', [ItemWorkRegistryController::class, 'store'])->name('item-work-registries.store');
+            Route::get('systems/{id}/components', [ItemWorkRegistryController::class, 'components'])->name('systems.components');
+            Route::get('item-work-registries', [ItemWorkRegistryController::class, 'index'])->name('item-work-registries.index');
+        });
+
         Route::post('refrigeration-systems/{refrigeration_system}/initialize', [\App\Http\Controllers\SystemInitializationController::class, 'store'])->name('systems.initialize');
         Route::resource('refrigeration-systems', \App\Http\Controllers\RefrigerationSystemController::class);
         Route::resource('assets', \App\Http\Controllers\AssetController::class);

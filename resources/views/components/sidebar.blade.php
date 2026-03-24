@@ -6,6 +6,7 @@
         ],
         'Assets' => [
             ['label' => 'Item Categories', 'route' => 'item-categories.index', 'icon' => 'fa fa-tags'],
+            ['label' => 'Inventory Items', 'route' => 'inventory-items.index', 'icon' => 'fa fa-boxes'],
             ['label' => 'Hardware Assets', 'route' => 'assets.index', 'icon' => 'fa fa-microchip'],
         ],
         'Maintenance' => [
@@ -13,7 +14,6 @@
             ['label' => 'PM Schedules', 'route' => 'pm-schedules.index', 'icon' => 'fa fa-calendar-alt'],
         ],
         'Stock' => [
-            ['label' => 'Inventory', 'route' => 'inventory-items.index', 'icon' => 'fa fa-boxes'],
             ['label' => 'Purchases', 'route' => 'procurement.index', 'icon' => 'fa fa-shopping-cart'],
         ],
         'Monitoring' => [

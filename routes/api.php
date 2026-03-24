@@ -28,6 +28,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Inventory Lookup
     Route::get('/inventory', [\App\Http\Controllers\API\InventoryApiController::class, 'index']);
+
+    // System Components (Tree Structure)
+    Route::get('/systems/{id}/components', [\App\Http\Controllers\SystemComponentController::class, 'index']);
+    Route::post('/systems/{id}/components', [\App\Http\Controllers\SystemComponentController::class, 'store']);
+    Route::put('/components/{id}', [\App\Http\Controllers\SystemComponentController::class, 'update']);
+    Route::delete('/components/{id}', [\App\Http\Controllers\SystemComponentController::class, 'destroy']);
 });
 
 // Optionally public for IoT sensors

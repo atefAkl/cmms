@@ -13,15 +13,25 @@ class InventoryItem extends Model
     protected $fillable = [
         'category_id', 
         'name', 
+        'brand',
         'reference_number', 
         'part_number', 
+        'model_number',
         'type', 
         'uom', 
         'stock', 
         'cost', 
+        'tech_specs',
         'min_stock_level', 
         'supplier_id', 
         'is_active'
+    ];
+
+    protected $casts = [
+        'tech_specs' => 'array',
+        'is_active' => 'boolean',
+        'stock' => 'float',
+        'cost' => 'float',
     ];
 
     public function category()

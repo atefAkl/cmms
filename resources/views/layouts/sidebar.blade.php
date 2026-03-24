@@ -92,13 +92,11 @@
             </button>
             <div x-show="openInventory" x-transition class="pl-8 space-y-1 mt-1 font-medium">
                 <a href="{{ route('inventory-items.index') }}"
-                    class="block px-4 py-2 text-sm text-gray-300 rounded hover:bg-gray-700 hover:text-white {{ request()->routeIs('inventory-items.*') ? 'text-white font-bold bg-gray-700' : '' }}">Inventory
-                    Items</a>
-                <a href="{{ route('procurement.index') }}"
-                    class="block px-4 py-2 text-sm text-gray-300 rounded hover:bg-gray-700 hover:text-white {{ request()->routeIs('procurement.*') ? 'text-white font-bold bg-gray-700' : '' }}">Procurement
-                    (Purchases)</a>
+                    class="block px-4 py-2 text-sm text-gray-300 rounded hover:bg-gray-700 hover:text-white {{ request()->routeIs('inventory-items.*') ? 'text-white font-bold bg-indigo-500/20 border-l-4 border-indigo-500' : '' }}">Items (Products)</a>
                 <a href="{{ route('item-categories.index') }}"
-                    class="block px-4 py-2 text-sm text-gray-300 rounded hover:bg-gray-700 hover:text-white {{ request()->routeIs('item-categories.*') ? 'text-white font-bold bg-gray-700' : '' }}">Categories</a>
+                    class="block px-4 py-2 text-sm text-gray-300 rounded hover:bg-gray-700 hover:text-white {{ request()->routeIs('item-categories.*') ? 'text-white font-bold bg-indigo-500/20 border-l-4 border-indigo-500' : '' }}">Categories</a>
+                <a href="{{ route('procurement.index') }}"
+                    class="block px-4 py-2 text-sm text-gray-300 rounded hover:bg-gray-700 hover:text-white {{ request()->routeIs('procurement.*') ? 'text-white font-bold bg-gray-700' : '' }}">Procurement (Purchases)</a>
                 <a href="{{ route('warehouses.index') }}"
                     class="block px-4 py-2 text-sm text-gray-300 rounded hover:bg-gray-700 hover:text-white {{ request()->routeIs('warehouses.*') ? 'text-white font-bold bg-gray-700' : '' }}">Warehouses</a>
             </div>

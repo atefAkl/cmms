@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('rooms', function (Blueprint $table) {
             $table->engine('InnoDB');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->cascadeOnDelete();
-            $table->foreign('layout_id')->references('id')->on('room_layouts')->cascadeOnDelete();
+            $table->foreign('room_layout_id')->references('id')->on('room_layouts')->cascadeOnDelete();
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
     {
         Schema::table('rooms', function (Blueprint $table) {
             $table->dropForeign(['warehouse_id']);
-            $table->dropForeign(['layout_id']);
+            $table->dropForeign(['room_layout_id']);
         });
     }
 };

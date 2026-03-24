@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->string('image', 100);
             $table->json('layout_dimensions');
             $table->json('door_dimensions');
-            $table->timestamp('deleted_at');
             $table->enum('door_position', ['left', 'right', 'center']);
             $table->decimal('wall_thickness', 5, 2);
             $table->boolean('is_active')->default(true);

@@ -62,7 +62,7 @@
                             </div>
                         </div>
                     </div>
-                    {{ $refrigerationSystem }}
+                    
                     <!-- Hierarchical Asset Tree -->
                     <div x-data="{ treeExpanded: true }"
                         class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100 relative min-h-[400px]">
@@ -114,6 +114,50 @@
                             @endforelse
                         </div>
                     </div>
+
+                    <!-- Hierarchical Component Tree (System Devices) -->
+                    <div x-data="{ treeExpanded: true }"
+                        class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100 relative min-h-[400px]">
+
+                        <div
+                            class="px-8 py-5 border-b border-gray-50 flex items-center justify-between bg-white z-10 sticky top-0 shadow-sm">
+                            <h3
+                                class="font-bold text-gray-900 border-l-4 border-emerald-500 pl-4 flex items-center gap-2">
+                                <i class="fa fa-cogs text-emerald-400"></i> المكونات الفنية للنظام (System Components)
+                            </h3>
+
+                            <div class="flex items-center gap-3">
+                                <button
+                                    @click="$dispatch('open-component-modal', { system_id: {{ $refrigerationSystem->id }} })"
+                                    class="inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-black transition shadow-[0_4px_14px_0_rgba(15,23,42,0.39)]">
+                                    <i class="fa fa-plus mr-1.5 text-emerald-400"></i> Add Component
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Core Rendering Space -->
+                        <div class="p-6 bg-slate-50/30">
+                            @forelse($refrigerationSystem->topLevelSystemDevices as $rootComponent)
+                                @include('refrigeration-systems._system_device_node', ['component' => $rootComponent])
+                            @empty
+                                <!-- Empty UI Placeholder -->
+                                <div class="flex flex-col items-center justify-center py-16 text-center">
+                                    <div
+                                        class="w-20 h-20 bg-emerald-50/50 text-emerald-300 rounded-full flex items-center justify-center mb-5 text-3xl shadow-inner border border-emerald-100">
+                                        <i class="fa fa-plug"></i>
+                                    </div>
+                                    <h4 class="text-base font-black text-slate-800 mb-2 uppercase tracking-wide">لا توجد مكونات بعد</h4>
+                                    <p class="text-sm font-medium text-slate-500 max-w-sm mb-6 leading-relaxed">قم بإضافة المكونات الفنية كشجرة تنظيمية.</p>
+                                    <button
+                                        @click="$dispatch('open-component-modal', { system_id: {{ $refrigerationSystem->id }} })"
+                                        class="px-5 py-2.5 outline outline-2 outline-emerald-200 bg-white text-emerald-600 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-sm hover:bg-emerald-50 transition">
+                                        <i class="fa fa-plus mr-2"></i> إضافة مكون أساسي
+                                    </button>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="space-y-8">
@@ -340,4 +384,225 @@
             </div>
         </div>
     </div>
+
+    <!-- System Component Add/Edit Modal (AlpineJS & API) -->
+    <div x-data="{ 
+            open: false, 
+            isEdit: false,
+            allInventoryItems: {{ isset($inventoryItems) ? $inventoryItems->toJson() : '[]' }},
+            formData: {
+                component_id: null,
+                name: '',
+                component_type: '',
+                product_id: '',
+                status: 'unknown',
+                install_type: 'init',
+                parent_id: '',
+                refrigeration_system_id: '',
+                install_date: '',
+                serial: '',
+                position: ''
+            },
+            onProductSelect() {
+                const selectedItem = this.allInventoryItems.find(item => item.id == this.formData.product_id);
+                if (selectedItem && !this.formData.name) {
+                    this.formData.name = selectedItem.name;
+                }
+            },
+            async submitComponent() {
+                try {
+                    let url = '/api/systems/' + this.formData.refrigeration_system_id + '/components';
+                    let method = 'POST';
+                    if (this.isEdit) {
+                        url = '/api/components/' + this.formData.component_id;
+                        method = 'PUT';
+                    }
+                    
+                    const payload = {
+                        parent_id: this.formData.parent_id || null,
+                        product_id: this.formData.product_id || null,
+                        name: this.formData.name,
+                        component_type: this.formData.component_type,
+                        install_type: this.formData.install_type,
+                        installed_at: this.formData.install_date,
+                        status: this.formData.status,
+                        metadata: {
+                            serial: this.formData.serial,
+                            position: this.formData.position
+                        }
+                    };
+
+                    // For web routes API we might need CSRF token if not Sanctum SPA. 
+                    // Let's grab it from meta tag if available.
+                    let token = document.head.querySelector('meta[name=csrf-token]')?.content;
+
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        alert('Error: ' + (errorData.message || errorData.error || 'Failed to save component'));
+                        return;
+                    }
+
+                    // Success => simple reload to refresh tree
+                    window.location.reload();
+                } catch (e) {
+                    alert('Request failed: ' + e.message);
+                }
+            }
+         }" x-show="open" @open-component-modal.window="
+            open = true; 
+            isEdit = !!$event.detail.component_id;
+            formData.component_id = $event.detail.component_id || null;
+            formData.name = $event.detail.name || '';
+            formData.component_type = $event.detail.component_type || '';
+            formData.product_id = $event.detail.product_id || '';
+            formData.status = $event.detail.status || 'unknown';
+            formData.install_type = $event.detail.install_type || 'init';
+            formData.parent_id = $event.detail.parent_id || '';
+            formData.refrigeration_system_id = $event.detail.system_id || '';
+            formData.install_date = $event.detail.install_date || new Date().toISOString().split('T')[0];
+            formData.serial = $event.detail.serial || '';
+            formData.position = $event.detail.position || '';
+         " style="display: none;" class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title-component"
+        role="dialog" aria-modal="true">
+
+        <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm transition-opacity" @click="open = false"
+            x-show="open" x-transition.opacity></div>
+
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div x-show="open" x-transition.scale.origin.bottom
+                class="relative transform overflow-visible rounded-xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-200">
+                <form @submit.prevent="submitComponent()">
+
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 rounded-t-xl">
+                        <div class="sm:flex sm:items-start">
+                            <div
+                                class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <i class="fa fa-cogs text-emerald-600 text-lg"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-base font-black leading-6 text-slate-900 uppercase tracking-widest"
+                                    id="modal-title-component" x-text="isEdit ? 'تعديل بيانات المكون' : 'إضافة مكون للنظام'"></h3>
+                                <div class="mt-4 space-y-4 text-left">
+                                    
+                                    <div>
+                                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">المنتج المرتبط (Inventory)</label>
+                                        <select x-model="formData.product_id" @change="onProductSelect()"
+                                            class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                            <option value="">-- اختياري: اربط بمنتج --</option>
+                                            <template x-for="item in allInventoryItems" :key="item.id">
+                                                <option :value="item.id" x-text="item.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">اسم المكون *</label>
+                                        <input type="text" x-model="formData.name" required
+                                            class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold"
+                                            placeholder="مثال: ضاغط رقم 1">
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">نوع المكون الفني</label>
+                                            <input type="text" x-model="formData.component_type"
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold"
+                                                placeholder="compressor, fan...">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">تاريخ التركيب</label>
+                                            <input type="date" x-model="formData.install_date"
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">نوع العملية التركيبية</label>
+                                            <select x-model="formData.install_type" required
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                                <option value="init">تأسيس (Init)</option>
+                                                <option value="replace">تغيير قطعة (Replace)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">الحالة</label>
+                                            <select x-model="formData.status" required
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                                <option value="working">يعمل (Working)</option>
+                                                <option value="stopped">متوقف (Stopped)</option>
+                                                <option value="unknown">غير محدد</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Serial Number</label>
+                                            <input type="text" x-model="formData.serial"
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Position / Info</label>
+                                            <input type="text" x-model="formData.position"
+                                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-sm sm:leading-6 font-bold">
+                                        </div>
+                                    </div>
+
+                                    <template x-if="formData.parent_id">
+                                        <div
+                                            class="bg-emerald-50 p-2 rounded text-[10px] font-bold text-emerald-700 flex items-center">
+                                            <i class="fa fa-link mr-2"></i> يتم ربطها كعنصر تابع (مكون فرعي). الحد الأقصى للعمق هو 3 مستويات.
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-xl border-t border-gray-100">
+                        <button type="submit"
+                            class="inline-flex w-full justify-center rounded-md bg-emerald-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white shadow-sm hover:bg-emerald-500 sm:ml-3 sm:w-auto transition">
+                            <span x-show="!isEdit">Save Component</span>
+                            <span x-show="isEdit">Update Component</span>
+                        </button>
+                        <button type="button" @click="open = false"
+                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function deleteComponent(id) {
+            if(!confirm('هل أنت متأكد من حذف هذا المكون وكل المكونات الفرعية التابعة له؟')) return;
+            
+            let token = document.head.querySelector('meta[name=csrf-token]')?.content;
+            try {
+                const res = await fetch(`/api/components/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': token }
+                });
+                if(!res.ok) {
+                    const data = await res.json();
+                    alert('Error deleting: ' + (data.error || 'Unknown error'));
+                    return;
+                }
+                window.location.reload();
+            } catch (e) {
+                alert('Request failed');
+            }
+        }
+    </script>
 </x-app-layout>
