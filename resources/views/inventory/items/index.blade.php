@@ -28,8 +28,12 @@
                                     <tr class="group bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm rounded-xl overflow-hidden border border-transparent hover:border-gray-200">
                                         <td class="px-6 py-5 rounded-l-2xl">
                                             <div class="flex items-center">
-                                                <div class="h-10 w-10 flex-shrink-0 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center font-black text-xs uppercase">
-                                                    {{ substr($item->brand ?? $item->name, 0, 2) }}
+                                                <div class="h-10 w-10 flex-shrink-0 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center font-black text-xs uppercase overflow-hidden">
+                                                    @if($item->image)
+                                                        <img src="{{ Storage::url($item->image) }}" class="h-full w-full object-cover">
+                                                    @else
+                                                        {{ substr($item->brand ?? $item->name, 0, 2) }}
+                                                    @endif
                                                 </div>
                                                 <div class="ml-4">
                                                     <div class="text-sm font-black text-gray-900 leading-none mb-1">{{ $item->name }}</div>

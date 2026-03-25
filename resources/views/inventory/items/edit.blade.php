@@ -7,7 +7,7 @@
                 :backRoute="route('inventory-items.index')"
             />
 
-            <form action="{{ route('inventory-items.update', $inventoryItem) }}" method="POST" class="space-y-8">
+            <form action="{{ route('inventory-items.update', $inventoryItem) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
                 @method('PATCH')
                 
@@ -30,14 +30,51 @@
                     </div>
                     
                     <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <div class="col-span-1">
+                            <x-input-label for="image" value="Product Image" />
+                            <div class="mt-2 flex items-center space-x-6">
+                                <div class="shrink-0">
+                                    <div id="image-preview" class="h-24 w-24 object-cover rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                                        @if($inventoryItem->image)
+                                            <img src="{{ Storage::url($inventoryItem->image) }}" class="h-full w-full object-cover">
+                                        @else
+                                            <svg class="h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        @endif
+                                    </div>
+                                </div>
+                                <label class="block">
+                                    <span class="sr-only">Choose product photo</span>
+                                    <input type="file" name="image" onchange="previewImage(this)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                                </label>
+                            </div>
+                            <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                        </div>
+
+                        <div class="col-span-1">
+                            <!-- Placeholder for layout balance -->
+                        </div>
+
+                        <script>
+                            function previewImage(input) {
+                                if (input.files && input.files[0]) {
+                                    var reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        document.getElementById('image-preview').innerHTML = '<img src="' + e.target.result + '" class="h-full w-full object-cover">';
+                                    };
+                                    reader.readAsDataURL(input.files[0]);
+                                }
+                            }
+                        </script>
                         <div class="col-span-2">
                             <x-input-label for="name" value="Item / Product Name" />
                             <x-text-input name="name" type="text" :value="$inventoryItem->name" class="mt-1 block w-full text-lg font-bold" required />
+                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="brand" value="Brand / Manufacturer" />
                             <x-text-input name="brand" type="text" :value="$inventoryItem->brand" class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('brand')" class="mt-2" />
                         </div>
 
                         <div>
@@ -47,21 +84,25 @@
                                     <option value="{{ $category->id }}" {{ $inventoryItem->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="reference_number" value="Internal Asset / SKU Ref" />
                             <x-text-input name="reference_number" type="text" :value="$inventoryItem->reference_number" class="mt-1 block w-full font-mono text-sm" />
+                            <x-input-error :messages="$errors->get('reference_number')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="part_number" value="Manufacturer Part #" />
                             <x-text-input name="part_number" type="text" :value="$inventoryItem->part_number" class="mt-1 block w-full font-mono text-sm" />
+                            <x-input-error :messages="$errors->get('part_number')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="model_number" value="Model Number" />
                             <x-text-input name="model_number" type="text" :value="$inventoryItem->model_number" class="mt-1 block w-full font-mono text-sm" />
+                            <x-input-error :messages="$errors->get('model_number')" class="mt-2" />
                         </div>
 
                         <div>
@@ -71,6 +112,7 @@
                                     <option value="{{ $type }}" {{ $inventoryItem->type === $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('type')" class="mt-2" />
                         </div>
                     </div>
                 </div>
@@ -87,7 +129,6 @@
                     </div>
                     
                     @php $specs = $inventoryItem->tech_specs ?? []; @endphp
-
                     <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
                         <div>
                             <x-input-label for="tech_specs[refrigerant]" value="Refrigerant Type" />
@@ -107,6 +148,7 @@
                                     <option value="{{ $v }}" {{ ($specs['voltage'] ?? '') === $v ? 'selected' : '' }}>{{ $v }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('tech_specs.voltage')" class="mt-2" />
                         </div>
 
                         <div>
@@ -116,37 +158,41 @@
                                 <option value="1-Phase" {{ ($specs['phase'] ?? '') === '1-Phase' ? 'selected' : '' }}>Single Phase</option>
                                 <option value="3-Phase" {{ ($specs['phase'] ?? '') === '3-Phase' ? 'selected' : '' }}>Three Phase</option>
                             </select>
+                            <x-input-error :messages="$errors->get('tech_specs.phase')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="tech_specs[capacity]" value="Capacity (HP or BTU)" />
                             <x-text-input name="tech_specs[capacity]" type="text" :value="$specs['capacity'] ?? ''" placeholder="e.g. 5 HP / 30,000 BTU" class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('tech_specs.capacity')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="tech_specs[dimensions]" value="Dimensions (cm)" />
                             <x-text-input name="tech_specs[dimensions]" type="text" :value="$specs['dimensions'] ?? ''" placeholder="L x W x H" class="mt-1 block w-full font-mono text-sm" />
+                            <x-input-error :messages="$errors->get('tech_specs.dimensions')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="tech_specs[weight]" value="Weight (Kg)" />
                             <x-text-input name="tech_specs[weight]" type="number" step="0.1" :value="$specs['weight'] ?? ''" placeholder="0.00" class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('tech_specs.weight')" class="mt-2" />
                         </div>
                     </div>
                 </div>
 
                 <!-- Section 3: Inventory Settings -->
-                <div class="bg-white shadow-xl sm:rounded-2xl border border-gray-100 overflow-hidden">
-                    <div class="px-8 py-5 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                <div class="bg-slate-200 shadow-md sm:rounded-2xl border border-gray-100 overflow-hidden">
+                    <div class="px-8 py-5 bg-slate-50 border-b border-gray-100 flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="bg-emerald-600 p-2 rounded-lg text-white">
+                            <div class="bg-slate-600 p-2 rounded-lg text-white">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                             <h3 class="font-black text-gray-800 uppercase tracking-tighter">3. Inventory Controls</h3>
                         </div>
                     </div>
                     
-                    <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6 bg-emerald-50/20">
+                    <div class="p-8 grid grid-cols-3 md:grid-cols-3 gap-6 bg-emerald-50/20">
                         <div>
                             <x-input-label for="uom" value="UoM" />
                             <select name="uom" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm" required>
@@ -156,11 +202,13 @@
                                 <option value="drum" {{ $inventoryItem->uom === 'drum' ? 'selected' : '' }}>Drum</option>
                                 <option value="meter" {{ $inventoryItem->uom === 'meter' ? 'selected' : '' }}>Meter (m)</option>
                             </select>
+                            <x-input-error :messages="$errors->get('uom')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="min_stock_level" value="Safety Stock Level" />
                             <x-text-input name="min_stock_level" type="number" step="0.01" :value="$inventoryItem->min_stock_level" class="mt-1 block w-full font-black text-red-500" required />
+                            <x-input-error :messages="$errors->get('min_stock_level')" class="mt-2" />
                         </div>
 
                         <div>
@@ -169,7 +217,8 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 sm:text-sm">$</span>
                                 </div>
-                                <input type="number" name="cost" step="0.01" :value="$inventoryItem->cost" class="block w-full pl-7 border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 font-bold" required />
+                                <x-text-input name="cost" type="number" step="0.01" :value="$inventoryItem->cost" class="mt-1 block w-full pl-7 border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 font-bold" required />
+                                <x-input-error :messages="$errors->get('cost')" class="mt-2" />
                             </div>
                         </div>
                     </div>

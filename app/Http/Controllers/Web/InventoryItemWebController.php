@@ -7,6 +7,7 @@ use App\Models\InventoryItem;
 use App\Models\ItemCategory;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class InventoryItemWebController extends Controller
 {
@@ -39,7 +40,13 @@ class InventoryItemWebController extends Controller
             'stock'            => 'required|numeric|min:0',
             'min_stock_level'  => 'required|numeric|min:0',
             'tech_specs'       => 'nullable|array',
+            'image'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('inventory_items', 'public');
+            $validated['image'] = $path;
+        }
 
         try{
             InventoryItem::create($validated);
@@ -73,7 +80,16 @@ class InventoryItemWebController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
             'is_active' => 'required|boolean',
             'tech_specs' => 'nullable|array',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($inventoryItem->image && Storage::disk('public')->exists($inventoryItem->image)) {
+                Storage::disk('public')->delete($inventoryItem->image);
+            }
+            $path = $request->file('image')->store('inventory_items', 'public');
+            $validated['image'] = $path;
+        }
 
         $inventoryItem->update($validated);
 

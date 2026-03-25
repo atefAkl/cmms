@@ -13,6 +13,7 @@ class InventoryItem extends Model
     protected $fillable = [
         'category_id', 
         'name', 
+        'image',
         'brand',
         'reference_number', 
         'part_number', 
