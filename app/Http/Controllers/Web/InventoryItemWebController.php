@@ -28,19 +28,20 @@ class InventoryItemWebController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'             => 'required|string|max:255', //ok
-            'brand'            => 'nullable|string|max:255', //ok
-            'category_id'      => 'required|exists:item_categories,id', //ok
-            'type'             => 'required|in:part,consumable,tool,other', //ok
-            'uom'              => 'required|string|max:50', //ok
-            'part_number'      => 'nullable|string|max:255', //ok
-            'model_number'     => 'nullable|string|max:255', //ok
+            'name'             => 'required|string|max:255',
+            'brand'            => 'nullable|string|max:255',
+            'category_id'      => 'required|exists:item_categories,id',
+            'type'             => 'required|in:part,consumable,tool,other',
+            'uom'              => 'required|string|max:50',
+            'part_number'      => 'nullable|string|max:255',
+            'model_number'     => 'nullable|string|max:255',
             'reference_number' => 'nullable|string|max:255',
             'cost'             => 'required|numeric|min:0',
             'stock'            => 'required|numeric|min:0',
             'min_stock_level'  => 'required|numeric|min:0',
             'tech_specs'       => 'nullable|array',
             'image'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'attributes_json'  => 'nullable|string', // raw JSON from Alpine.js hidden field
         ]);
 
         if ($request->hasFile('image')) {
@@ -48,12 +49,25 @@ class InventoryItemWebController extends Controller
             $validated['image'] = $path;
         }
 
+        // ------------------------------------------------------------------
+        // Process dynamic attributes from Alpine.js JSON payload.
+        // Input:  [{"key":"القوة","value":"5","unit":"حصان"}, ...]
+        // Output: {"القوة":["5","حصان"], "قابل للطي":["نعم"]}
+        // ------------------------------------------------------------------
+        $validated['attributes'] = $this->parseAttributesJson($request->input('attributes_json'));
+        unset($validated['attributes_json']); // not a DB column
+
         try{
             InventoryItem::create($validated);
             return redirect()->route('inventory-items.index')->with('success', 'Inventory item created.');
         }catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Failed to create inventory item. Please try again.');
         }
+    }
+
+    public function show(InventoryItem $inventoryItem)
+    {
+        return view('inventory.items.show', compact('inventoryItem'));
     }
 
     public function edit(InventoryItem $inventoryItem)
@@ -67,20 +81,21 @@ class InventoryItemWebController extends Controller
     public function update(Request $request, InventoryItem $inventoryItem)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'brand' => 'nullable|string|max:255',
-            'category_id' => 'required|exists:item_categories,id',
-            'type' => 'required|in:part,consumable,tool,other',
-            'uom' => 'required|string|max:50',
-            'part_number' => 'nullable|string|max:255',
-            'model_number' => 'nullable|string|max:255',
+            'name'             => 'required|string|max:255',
+            'brand'            => 'nullable|string|max:255',
+            'category_id'      => 'required|exists:item_categories,id',
+            'type'             => 'required|in:part,consumable,tool,other',
+            'uom'              => 'required|string|max:50',
+            'part_number'      => 'nullable|string|max:255',
+            'model_number'     => 'nullable|string|max:255',
             'reference_number' => 'nullable|string|max:255',
-            'cost' => 'required|numeric|min:0',
-            'min_stock_level' => 'required|integer|min:0',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'is_active' => 'required|boolean',
-            'tech_specs' => 'nullable|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'cost'             => 'required|numeric|min:0',
+            'min_stock_level'  => 'required|integer|min:0',
+            'supplier_id'      => 'nullable|exists:suppliers,id',
+            'is_active'        => 'required|boolean',
+            'tech_specs'       => 'nullable|array',
+            'image'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'attributes_json'  => 'nullable|string', // raw JSON from Alpine.js hidden field
         ]);
 
         if ($request->hasFile('image')) {
@@ -91,6 +106,10 @@ class InventoryItemWebController extends Controller
             $validated['image'] = $path;
         }
 
+        // Process dynamic attributes (same logic as store)
+        $validated['attributes'] = $this->parseAttributesJson($request->input('attributes_json'));
+        unset($validated['attributes_json']); // not a DB column
+
         $inventoryItem->update($validated);
 
         return redirect()->route('inventory-items.index')->with('success', 'Inventory item updated.');
@@ -100,5 +119,58 @@ class InventoryItemWebController extends Controller
     {
         $inventoryItem->delete();
         return redirect()->route('inventory-items.index')->with('success', 'Inventory item removed.');
+    }
+
+    // -------------------------------------------------------------------------
+    // PRIVATE HELPERS
+    // -------------------------------------------------------------------------
+
+    /**
+     * Convert the Alpine.js JSON array of attribute rows into the stored format.
+     *
+     * Input (JSON string):
+     *   [{"key":"القوة","value":"5","unit":"حصان"},{"key":"قابل للطي","value":"نعم","unit":""}]
+     *
+     * Output (PHP array → stored as JSON):
+     *   {"القوة":["5","حصان"],"قابل للطي":["نعم"]}
+     *
+     * Rules:
+     *  - Rows with an empty or missing key are skipped.
+     *  - Unit is only included when non-empty.
+     */
+    private function parseAttributesJson(?string $json): ?array
+    {
+        if (empty($json)) {
+            return null;
+        }
+
+        $rows = json_decode($json, true);
+
+        if (!is_array($rows)) {
+            return null;
+        }
+
+        $result = [];
+
+        foreach ($rows as $row) {
+            $key   = trim($row['key']   ?? '');
+            $value = trim($row['value'] ?? '');
+            $unit  = trim($row['unit']  ?? '');
+
+            // Skip rows that are missing a key
+            if ($key === '') {
+                continue;
+            }
+
+            // Build the value array: [value] or [value, unit]
+            $entry = [$value];
+            if ($unit !== '') {
+                $entry[] = $unit;
+            }
+
+            $result[$key] = $entry;
+        }
+
+        return empty($result) ? null : $result;
     }
 }

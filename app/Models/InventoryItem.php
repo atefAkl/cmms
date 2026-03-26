@@ -23,16 +23,18 @@ class InventoryItem extends Model
         'stock', 
         'cost', 
         'tech_specs',
+        'attributes',       // Dynamic custom attributes (JSON)
         'min_stock_level', 
         'supplier_id', 
         'is_active'
     ];
 
     protected $casts = [
-        'tech_specs' => 'array',
-        'is_active' => 'boolean',
-        'stock' => 'float',
-        'cost' => 'float',
+        'tech_specs'  => 'array',
+        'attributes'  => 'array',   // Dynamic custom attributes
+        'is_active'   => 'boolean',
+        'stock'       => 'float',
+        'cost'        => 'float',
     ];
 
     public function category()

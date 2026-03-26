@@ -224,6 +224,127 @@
                     </div>
                 </div>
 
+                {{-- ============================================================ --}}
+                {{-- Section 4: Custom / Dynamic Attributes                        --}}
+                {{-- Pre-populate from the stored attributes JSON (edit mode).     --}}
+                {{-- ============================================================ --}}
+                @php
+                    // Convert stored {key:[value,unit?]} → [{key,value,unit}] for Alpine.js
+                    $storedAttributes = $inventoryItem->attributes ?? [];
+                    $initialAttrs = [];
+                    foreach ($storedAttributes as $attrKey => $attrData) {
+                        $initialAttrs[] = [
+                            'key'   => $attrKey,
+                            'value' => $attrData[0] ?? '',
+                            'unit'  => $attrData[1] ?? '',
+                        ];
+                    }
+                    // Always show at least one empty row if no attributes saved yet
+                    if (empty($initialAttrs)) {
+                        $initialAttrs = [['key' => '', 'value' => '', 'unit' => '']];
+                    }
+                @endphp
+
+                <div
+                    class="bg-white shadow-xl sm:rounded-2xl border border-gray-100 overflow-hidden"
+                    x-data="{
+                        attrs: {{ Js::from($initialAttrs) }},
+
+                        addRow() {
+                            this.attrs.push({ key: '', value: '', unit: '' });
+                        },
+
+                        removeRow(index) {
+                            if (this.attrs.length > 1) {
+                                this.attrs.splice(index, 1);
+                            } else {
+                                this.attrs = [{ key: '', value: '', unit: '' }];
+                            }
+                        }
+                    }"
+                >
+                    {{-- Section header --}}
+                    <div class="px-8 py-5 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-teal-600 p-2 rounded-lg text-white">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                            </div>
+                            <h3 class="font-black text-gray-800 uppercase tracking-tighter">4. Custom Attributes</h3>
+                        </div>
+                        {{-- "+" Add Row button --}}
+                        <button
+                            type="button"
+                            @click="addRow()"
+                            class="flex items-center gap-1 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs py-1.5 px-4 rounded-full transition"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Add Attribute
+                        </button>
+                    </div>
+
+                    <div class="p-8 space-y-3 bg-emerald-50/20">
+                        {{-- Column headers --}}
+                        <div class="grid grid-cols-12 gap-3 text-xs font-bold text-gray-500 uppercase tracking-widest px-1">
+                            <div class="col-span-4">Attribute Key</div>
+                            <div class="col-span-4">Value</div>
+                            <div class="col-span-3">Unit <span class="text-gray-300 font-normal">(optional)</span></div>
+                            <div class="col-span-1"></div>
+                        </div>
+
+                        {{-- Dynamic rows --}}
+                        <template x-for="(attr, index) in attrs" :key="index">
+                            <div class="grid grid-cols-12 gap-3 items-center">
+                                {{-- Key --}}
+                                <div class="col-span-4">
+                                    <input
+                                        type="text"
+                                        x-model="attr.key"
+                                        placeholder="e.g. القوة"
+                                        class="block w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                                        dir="auto"
+                                    />
+                                </div>
+                                {{-- Value --}}
+                                <div class="col-span-4">
+                                    <input
+                                        type="text"
+                                        x-model="attr.value"
+                                        placeholder="e.g. 5"
+                                        class="block w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                                        dir="auto"
+                                    />
+                                </div>
+                                {{-- Unit (optional) --}}
+                                <div class="col-span-3">
+                                    <input
+                                        type="text"
+                                        x-model="attr.unit"
+                                        placeholder="e.g. حصان"
+                                        class="block w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        dir="auto"
+                                    />
+                                </div>
+                                {{-- Remove row button --}}
+                                <div class="col-span-1 flex justify-center">
+                                    <button
+                                        type="button"
+                                        @click="removeRow(index)"
+                                        class="text-red-400 hover:text-red-600 transition text-lg font-bold leading-none"
+                                        title="Remove row"
+                                    >✕</button>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- Hidden field: serialised JSON sent to the controller --}}
+                        <input type="hidden" name="attributes_json" :value="JSON.stringify(attrs)">
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-end pt-4 pb-12">
                     <x-secondary-button x-on:click="window.history.back()" class="mr-3 py-4 px-8 border-none text-gray-400">Cancel</x-secondary-button>
                     <button type="submit" class="bg-indigo-600 border-b-4 border-indigo-900 hover:bg-indigo-700 text-white font-black py-4 px-12 rounded-2xl shadow-2xl transition transform active:scale-95 active:border-b-0">
